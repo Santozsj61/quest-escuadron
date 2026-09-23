@@ -1,4 +1,5 @@
 @echo off
+setlocal enabledelayedexpansion
 chcp 65001 >nul
 echo ========================================================
 echo   CONQUISTA TU ZONA - SUBIR PROYECTO A GITHUB / VERCEL
@@ -29,10 +30,11 @@ if not exist ".git" (
 echo [INFO] Agregando archivos al control de versiones...
 "%GIT_EXE%" add .
 
-set /p MSG="Ingresa una descripcion del cambio (o presiona ENTER para automatica): "
-if "%MSG%"=="" set MSG="Actualizacion Escuadron de Combate Quest"
+set "MSG="
+set /p "MSG=Ingresa una descripcion del cambio (o presiona ENTER para automatica): "
+if "!MSG!"=="" set "MSG=Actualizacion Escuadron de Combate Quest"
 
-"%GIT_EXE%" commit -m "%MSG%"
+"%GIT_EXE%" commit -m "!MSG!"
 
 echo.
 "%GIT_EXE%" remote get-url origin >nul 2>nul
@@ -44,9 +46,9 @@ if %errorlevel% neq 0 (
     echo Ingresa la URL de tu repositorio en GitHub
     echo Ejemplo: https://github.com/Santozsj61/quest-escuadron.git
     echo.
-    set /p REPO_URL="URL del repositorio: "
-    if not "%REPO_URL%"=="" (
-        "%GIT_EXE%" remote add origin %REPO_URL%
+    set /p "REPO_URL=URL del repositorio: "
+    if not "!REPO_URL!"=="" (
+        "%GIT_EXE%" remote add origin !REPO_URL!
         echo [OK] Remote agregado.
     ) else (
         echo [AVISO] No ingresaste URL de repositorio remoto. Se guardo localmente.
