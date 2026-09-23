@@ -1,0 +1,17 @@
+{
+  "name": "quest-escuadron",
+  "version": "1.0.0",
+  "description": "Conquista tu Zona en Aniversario - Escuadr\u00f3n de Combate Quest",
+  "main": "index.html",
+  "scripts": {
+    "start": "npx serve ."
+  },
+  "keywords": [
+    "quest",
+    "retail",
+    "escuadron",
+    "concurso"
+  ],
+  "author": "Santiago",
+  "license": "MIT"
+}

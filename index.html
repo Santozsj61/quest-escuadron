@@ -1,0 +1,1969 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Conquista tu Zona en Aniversario - Escuadrón de Combate</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        'navy-950': '#080E21',
+                        'navy-900': '#0F172A',
+                        'navy-800': '#1E293B',
+                        'navy-700': '#334155',
+                        'hud-cyan': '#00F0FF',
+                        'afterburner': '#FF9F1C',
+                        'victory-gold': '#FFD700',
+                        'danger-red': '#EF4444',
+                        'success-green': '#10B981',
+                    },
+                    fontFamily: {
+                        sans: ['"Segoe UI"', 'system-ui', '-apple-system', 'sans-serif'],
+                        mono: ['"Consolas"', '"Courier New"', 'monospace']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Base Themes */
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            overflow-x: hidden;
+            transition: background-color 0.4s ease, color 0.4s ease;
+        }
+
+        /* Light Theme (Estilo Infografía de Referencia) */
+        body.theme-light {
+            background-color: #EAECEF;
+            color: #1F2937;
+        }
+        body.theme-light .glass-header {
+            background: rgba(255, 255, 255, 0.94);
+            border-bottom: 2px solid #D1D5DB;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.06);
+        }
+        body.theme-light .runway-stage-bg {
+            background: #E5E7EB;
+            border: 1px solid #D1D5DB;
+        }
+        body.theme-light .runway-floor {
+            background: #D9DCE1;
+            border-top: 2px solid #C4C8D0;
+        }
+        body.theme-light .flight-ceiling-marker {
+            color: #4B5563;
+        }
+        body.theme-light .glass-card {
+            background: #FFFFFF;
+            border: 1px solid #E5E7EB;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+        body.theme-light .tab-btn {
+            color: #4B5563;
+        }
+        body.theme-light .tab-btn.active {
+            color: #0284C7;
+            border-bottom: 3px solid #0284C7;
+            background: rgba(2, 132, 199, 0.08);
+        }
+
+        /* Dark Theme (Modo Hangar Nocturno) */
+        body.theme-dark {
+            background-color: #080E21;
+            color: #F9FAFB;
+        }
+        body.theme-dark .glass-header {
+            background: rgba(15, 23, 42, 0.92);
+            border-bottom: 1px solid rgba(0, 240, 255, 0.25);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+        }
+        body.theme-dark .runway-stage-bg {
+            background: #0B132B;
+            border: 1px solid rgba(51, 65, 85, 0.5);
+        }
+        body.theme-dark .runway-floor {
+            background: #111B38;
+            border-top: 2px solid #1E293B;
+        }
+        body.theme-dark .flight-ceiling-marker {
+            color: #94A3B8;
+        }
+        body.theme-dark .glass-card {
+            background: rgba(15, 23, 42, 0.85);
+            border: 1px solid rgba(51, 65, 85, 0.6);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+        }
+        body.theme-dark .tab-btn {
+            color: #94A3B8;
+        }
+        body.theme-dark .tab-btn.active {
+            color: #00F0FF;
+            border-bottom: 3px solid #00F0FF;
+            background: rgba(0, 240, 255, 0.1);
+        }
+
+        /* 3D Runway Lanes */
+        .lane-column {
+            transition: transform 0.25s ease, filter 0.25s ease;
+        }
+        .lane-column:hover {
+            transform: translateY(-8px);
+            z-index: 40;
+        }
+
+        /* Vertical Flight Bar */
+        .flight-bar {
+            transition: height 1.1s cubic-bezier(0.34, 1.25, 0.64, 1);
+            position: relative;
+        }
+
+        /* Jet Plane Silhouette on top of bar */
+        .jet-cap {
+            position: absolute;
+            top: -50px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 76px;
+            height: 82px;
+            pointer-events: none;
+            z-index: 25;
+            transition: top 1.1s cubic-bezier(0.34, 1.25, 0.64, 1);
+        }
+
+        .jet-silhouette {
+            width: 100%;
+            height: 100%;
+            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.35));
+        }
+
+        /* Flame Effect */
+        @keyframes afterburner-flicker {
+            0%, 100% { opacity: 0.9; transform: translateX(-50%) scaleY(1); }
+            50% { opacity: 1; transform: translateX(-50%) scaleY(1.3) scaleX(1.1); filter: drop-shadow(0 0 10px #FF5722); }
+        }
+        .afterburner-flame {
+            position: absolute;
+            top: 66px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 12px;
+            height: 22px;
+            background: linear-gradient(to bottom, #FFF, #FFD700, #FF5722, transparent);
+            border-radius: 0 0 50% 50%;
+            animation: afterburner-flicker 0.18s infinite alternate ease-in-out;
+            z-index: 15;
+        }
+
+        /* Altitude Grid Lines */
+        .altitude-guideline {
+            position: absolute;
+            left: 0;
+            right: 0;
+            pointer-events: none;
+            z-index: 2;
+        }
+
+        /* Front Card 3D Depth */
+        .front-card {
+            box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.35);
+            transition: transform 0.25s ease;
+        }
+
+        /* Pulse for Winner */
+        @keyframes crown-glow {
+            0%, 100% { filter: drop-shadow(0 0 8px #FFD700); }
+            50% { filter: drop-shadow(0 0 18px #FFD700); }
+        }
+        .pulse-winner-plane {
+            animation: crown-glow 2s infinite ease-in-out;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: rgba(0,0,0,0.05); }
+        ::-webkit-scrollbar-thumb { background: #94A3B8; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #64748B; }
+
+        /* Toast */
+        #toast-container {
+            position: fixed;
+            bottom: 1.5rem;
+            right: 1.5rem;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        .toast {
+            padding: 0.85rem 1.25rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.25);
+            transition: all 0.3s ease;
+            transform: translateX(110%);
+            opacity: 0;
+        }
+        .toast.show {
+            transform: translateX(0);
+            opacity: 1;
+        }
+
+        .section-hidden { display: none !important; }
+    </style>
+</head>
+<body class="theme-light min-h-screen flex flex-col text-sm">
+
+    <!-- Header Navigation -->
+    <header class="glass-header sticky top-0 z-50 transition-colors backdrop-blur-md">
+        <div class="max-w-7xl mx-auto px-4 py-3 flex flex-col md:flex-row justify-between items-center gap-4">
+            <!-- Brand & Squadron Badge -->
+            <div class="flex items-center gap-3">
+                <div class="bg-gradient-to-br from-amber-500 to-red-600 text-white font-black text-lg px-3 py-1.5 rounded-lg shadow-md flex items-center gap-2 tracking-wider">
+                    <span>✈️</span>
+                    <span>QUEST NCS</span>
+                </div>
+                <div class="hidden sm:block text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 border-l border-gray-300 dark:border-gray-700 pl-3">
+                    Operación Aniversario
+                </div>
+            </div>
+
+            <!-- Campaign Title -->
+            <div class="text-center flex-grow">
+                <h1 class="text-xl sm:text-2xl md:text-3xl font-black uppercase tracking-tight md:tracking-wide text-gray-900 dark:text-white">
+                    Conquista tu Zona en Aniversario
+                </h1>
+                <p class="text-gray-600 dark:text-gray-400 text-xs font-medium uppercase tracking-wider mt-0.5" id="campaign-subtitle">
+                    Cumple al 100% con tu Escuadrón de combate y llévate el botín
+                </p>
+            </div>
+
+            <!-- Controls: Cut Selector, New Cut & Theme Switcher & Auth Roles -->
+            <div class="flex items-center gap-2">
+                <!-- Role / Auth Badge & Action -->
+                <div id="auth-controls" class="flex items-center gap-1.5">
+                    <!-- Populated dynamically by updateAuthUI() -->
+                </div>
+
+                <!-- Theme Toggle Button -->
+                <button id="theme-toggle-btn" onclick="toggleTheme()" title="Cambiar tema visual" class="p-2 rounded-lg bg-gray-200 dark:bg-navy-800 text-gray-800 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-navy-700 transition font-bold text-sm shadow-sm flex items-center gap-1.5">
+                    <span id="theme-icon">🌙</span>
+                    <span class="hidden lg:inline text-xs font-semibold" id="theme-text">Modo Hangar</span>
+                </button>
+
+                <!-- Cut Selector -->
+                <select id="cut-selector" class="bg-white dark:bg-navy-900 border border-gray-300 dark:border-navy-700 text-gray-900 dark:text-white text-xs sm:text-sm font-semibold p-2 rounded-lg shadow-sm outline-none focus:ring-2 focus:ring-amber-500">
+                    <!-- Populated by JS -->
+                </select>
+
+                <!-- New Cut Button (Solo Maestro) -->
+                <button id="new-cut-btn" onclick="openModal()" class="bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white font-bold text-xs sm:text-sm px-3.5 py-2 rounded-lg shadow-md hover:shadow-lg transition items-center gap-1 hidden">
+                    <span>+</span>
+                    <span>Nuevo Corte</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Navigation Tabs -->
+    <nav class="max-w-7xl mx-auto w-full mt-3 px-4 flex gap-2 border-b border-gray-300 dark:border-navy-700">
+        <button class="tab-btn active px-5 py-2.5 font-bold uppercase tracking-wider text-xs sm:text-sm rounded-t-lg transition flex items-center gap-1.5" onclick="switchTab('pista', this)">
+            <span>✈️</span> Pista de Vuelo 3D
+        </button>
+        <button class="tab-btn px-5 py-2.5 font-bold uppercase tracking-wider text-xs sm:text-sm rounded-t-lg transition flex items-center gap-1.5" onclick="switchTab('podio', this)">
+            <span>🏆</span> <span id="tab-podio-title">Podio de Honor (Top 2)</span>
+        </button>
+        <button class="tab-btn px-5 py-2.5 font-bold uppercase tracking-wider text-xs sm:text-sm rounded-t-lg transition flex items-center gap-1.5" onclick="switchTab('tabla', this)">
+            <span>📊</span> Tabla General
+        </button>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto w-full flex-grow p-4">
+
+        <!-- LEVEL NAVIGATION BAR: SELECCIÓN DE NIVEL (NACIONAL vs ZONA ESPECÍFICA / PDVs) -->
+        <div class="mb-4 glass-card p-3 rounded-xl flex flex-wrap items-center justify-between gap-3 border-l-4 border-amber-500">
+            <div class="flex items-center gap-2">
+                <span class="text-xs font-black uppercase tracking-wider text-gray-500 dark:text-gray-400">Escuadrón a Visualizar:</span>
+                <select id="zone-scope-selector" onchange="changeZoneScope(this.value)" class="bg-white dark:bg-navy-900 border border-gray-300 dark:border-navy-700 text-gray-900 dark:text-white text-xs sm:text-sm font-bold py-1.5 px-3 rounded-lg shadow-xs outline-none focus:ring-2 focus:ring-amber-500">
+                    <option value="all">🌐 Vista Nacional (11 Zonas / 94 PDVs)</option>
+                    <!-- Zone options injected by JS -->
+                </select>
+            </div>
+
+            <!-- Breadcrumb / Back button when in Zone view -->
+            <div id="zone-breadcrumb" class="hidden flex items-center gap-2">
+                <button onclick="changeZoneScope('all')" class="bg-gray-200 dark:bg-navy-800 hover:bg-amber-500 hover:text-white text-gray-800 dark:text-gray-200 px-3 py-1 rounded-lg text-xs font-bold transition flex items-center gap-1.5 shadow-xs">
+                    <span>⬅️</span>
+                    <span>Volver a Nacional</span>
+                </button>
+                <span id="zone-active-badge" class="px-2.5 py-1 rounded-lg font-black text-xs text-white shadow-xs">
+                    <!-- Populated by JS -->
+                </span>
+            </div>
+        </div>
+
+        <!-- TAB 1: PISTA DE VUELO 3D (Estilo Gráfico de Referencia) -->
+        <section id="tab-pista" class="space-y-4">
+            
+            <!-- Controls Bar: Filters & Formation Order -->
+            <div class="glass-card p-3 rounded-xl flex flex-wrap justify-between items-center gap-3">
+                <div class="flex flex-wrap items-center gap-2">
+                    <span class="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 mr-1">Filtrar:</span>
+                    <button class="filter-btn bg-amber-500 text-white px-3 py-1.5 rounded-lg text-xs font-bold shadow-sm transition active" onclick="setFilter('all', this)">
+                        Todos (<span id="count-all">0</span>)
+                    </button>
+                    <button class="filter-btn bg-gray-200 dark:bg-navy-800 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-navy-700 px-3 py-1.5 rounded-lg text-xs font-bold transition" onclick="setFilter('meta', this)">
+                        ✅ Cumplen Meta (≥100%)
+                    </button>
+                    <button class="filter-btn bg-gray-200 dark:bg-navy-800 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-navy-700 px-3 py-1.5 rounded-lg text-xs font-bold transition" onclick="setFilter('riesgo', this)">
+                        🚨 En Riesgo (&lt;95%)
+                    </button>
+                </div>
+
+                <!-- Sort Order Toggle -->
+                <div class="flex items-center gap-3">
+                    <div class="flex items-center gap-1.5 bg-gray-100 dark:bg-navy-900 p-1 rounded-lg border border-gray-300 dark:border-navy-700 text-xs">
+                        <span class="text-gray-500 dark:text-gray-400 font-bold px-1.5">Orden:</span>
+                        <button id="sort-rank-btn" onclick="toggleSortOrder('rank')" class="px-2.5 py-1 rounded font-bold bg-white dark:bg-navy-800 text-gray-900 dark:text-white shadow-xs">
+                            🏆 Ranking
+                        </button>
+                        <button id="sort-geo-btn" onclick="toggleSortOrder('geo')" class="px-2.5 py-1 rounded font-bold text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                            🗺️ Orden
+                        </button>
+                    </div>
+
+                    <!-- Audio Whoosh Toggle -->
+                    <button onclick="playJetSound()" title="Efecto de sonido de turbina" class="px-2.5 py-1.5 rounded-lg bg-gray-200 dark:bg-navy-800 hover:bg-amber-500 hover:text-white text-gray-700 dark:text-gray-300 transition text-xs font-bold flex items-center gap-1">
+                        🔊 Despegue
+                    </button>
+                </div>
+
+                <!-- Metrics Summary Pill -->
+                <div class="w-full sm:w-auto text-xs font-medium text-gray-600 dark:text-gray-300 flex items-center gap-3 bg-gray-100 dark:bg-navy-900 px-3 py-1.5 rounded-lg border border-gray-200 dark:border-navy-700" id="stats-summary">
+                    <!-- JS populated -->
+                </div>
+            </div>
+
+            <!-- RUNWAY 3D ARENA (Con holgura vertical completa para que los aviones nunca se corten) -->
+            <div class="runway-stage-bg rounded-2xl p-4 sm:p-6 shadow-inner relative overflow-visible transition-colors">
+                
+                <!-- Stage Header / Title in background -->
+                <div class="flex justify-between items-center text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-2 px-2">
+                    <span id="arena-header-left">ALTÍMETRO DE COMBATE</span>
+                    <span id="arena-header-center" class="hidden md:inline font-black text-amber-500">ESCUADRÓN EN VUELO</span>
+                    <span>TECHO: 120%</span>
+                </div>
+
+                <!-- Arena Body: Altura amplia y padding-top generoso para que las puntas de los aviones queden 100% visibles -->
+                <div class="relative w-full flex items-end pt-28 pb-4" style="min-height: 600px;">
+                    
+                    <!-- Background Altitude Guidelines (z-index: 2, detrás de las barras) -->
+                    <div class="absolute inset-0 pointer-events-none z-[2]">
+                        <div class="altitude-guideline border-b-2 border-dashed border-amber-400/50 dark:border-yellow-400/40" style="bottom: 430px;"></div>
+                        <div class="altitude-guideline border-b-2 border-solid border-emerald-500/60 dark:border-emerald-400/60" style="bottom: 380px;"></div>
+                        <div class="altitude-guideline border-b-2 border-dashed border-sky-400/40 dark:border-sky-400/30" style="bottom: 330px;"></div>
+                        <div class="altitude-guideline border-b border-dotted border-gray-400/30 dark:border-gray-600/30" style="bottom: 210px;"></div>
+                    </div>
+
+                    <!-- Left Altimeter Axis Labels (Completamente separado a la izquierda, nunca tapado) -->
+                    <div class="w-36 sm:w-44 flex-shrink-0 relative z-[35] pr-3 pointer-events-none hidden md:block" style="height: 540px;">
+                        <div class="absolute left-0" style="bottom: 418px;">
+                            <span class="text-[10px] font-black uppercase px-2.5 py-1 rounded-md bg-amber-500 text-white shadow-md flex items-center gap-1.5 tracking-wider border border-amber-300/40">
+                                🔥 105% AFTERBURNER
+                            </span>
+                        </div>
+                        <div class="absolute left-0" style="bottom: 368px;">
+                            <span class="text-[10px] font-black uppercase px-2.5 py-1 rounded-md bg-emerald-500 text-white shadow-md flex items-center gap-1.5 tracking-wider border border-emerald-300/40">
+                                🎯 100% META COMBATE
+                            </span>
+                        </div>
+                        <div class="absolute left-0" style="bottom: 318px;">
+                            <span class="text-[10px] font-bold uppercase px-2.5 py-1 rounded-md bg-sky-500 text-white shadow-md flex items-center gap-1.5 tracking-wider border border-sky-300/40">
+                                ⚡ 95% MÍNIMO
+                            </span>
+                        </div>
+                        <div class="absolute left-0" style="bottom: 198px;">
+                            <span class="text-[10px] font-bold uppercase px-2.5 py-1 rounded-md bg-gray-500 text-white shadow-xs tracking-wider">
+                                50% BASELINE
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- LANES SCROLLABLE CONTAINER: con pt-24 para que la punta y alas del avión jamás toquen el borde superior -->
+                    <div class="overflow-x-auto overflow-y-visible flex-grow z-[10] pt-24 pb-4">
+                        <div id="lanes-container" class="flex justify-start md:justify-center items-end gap-2 sm:gap-3.5 min-w-max px-2 sm:px-4">
+                            <!-- Lanes dynamically injected by JS -->
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Runway Floor Base Texture -->
+                <div class="runway-floor -mx-4 -mb-4 sm:-mx-6 sm:-mb-6 p-3 flex justify-between items-center text-[10px] font-bold text-gray-500 uppercase tracking-widest transition-colors">
+                    <div class="flex items-center gap-2">
+                        <span class="inline-block w-3 h-3 rounded-full bg-emerald-500"></span>
+                        <span id="runway-status-label">PISTA ACTIVA // CABECERA 24</span>
+                    </div>
+                    <div class="text-center font-mono" id="runway-formation-label">
+                        ESCUADRONES EN FORMACIÓN VERTICAL
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span>VELOCIDAD DE RÉGIMEN</span>
+                        <span class="inline-block w-3 h-3 rounded-full bg-amber-500 animate-pulse"></span>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Legend Info Card -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+                <div class="glass-card p-3 rounded-xl flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-lg bg-amber-500/20 text-amber-600 dark:text-amber-400 flex items-center justify-center font-bold text-base">🔥</div>
+                    <div>
+                        <div class="font-bold text-gray-900 dark:text-white">&ge; 105% Afterburner</div>
+                        <div class="text-[10px] text-gray-500">Supera la meta con potencia extra</div>
+                    </div>
+                </div>
+                <div class="glass-card p-3 rounded-xl flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-bold text-base">✅</div>
+                    <div>
+                        <div class="font-bold text-gray-900 dark:text-white">100% - 104% Meta Cumplida</div>
+                        <div class="text-[10px] text-gray-500">Asegura el botín de combate</div>
+                    </div>
+                </div>
+                <div class="glass-card p-3 rounded-xl flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-lg bg-sky-500/20 text-sky-600 dark:text-sky-400 flex items-center justify-center font-bold text-base">⚡</div>
+                    <div>
+                        <div class="font-bold text-gray-900 dark:text-white">95% - 99% En Zona Meta</div>
+                        <div class="text-[10px] text-gray-500">En rango de alcance del objetivo</div>
+                    </div>
+                </div>
+                <div class="glass-card p-3 rounded-xl flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-lg bg-red-500/20 text-red-600 dark:text-red-400 flex items-center justify-center font-bold text-base">🚨</div>
+                    <div>
+                        <div class="font-bold text-gray-900 dark:text-white">&lt; 95% Zona de Riesgo</div>
+                        <div class="text-[10px] text-gray-500">Requiere maniobra evasiva</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 2: PODIO DEL ESCUADRÓN (TOP 2: Campeón y Subcampeón sin solapamientos) -->
+        <section id="tab-podio" class="section-hidden space-y-10">
+            <!-- Header con espacio generoso -->
+            <div class="text-center pt-2 pb-6 border-b border-gray-200 dark:border-navy-700">
+                <h2 class="text-2xl sm:text-3xl font-black uppercase tracking-wider text-gray-900 dark:text-white flex items-center justify-center gap-2" id="podium-heading">
+                    <span>🏆</span> <span>Podio de Honor (Top 2)</span> <span>🥈</span>
+                </h2>
+                <p class="text-gray-500 text-xs sm:text-sm mt-1" id="podium-subheading">
+                    Los 2 escuadrones con mayor altitud de cumplimiento en combate
+                </p>
+            </div>
+
+            <!-- Podio de 2 Columnas (1er y 2do Lugar) -->
+            <div class="flex justify-center items-end gap-6 sm:gap-14 pt-14 pb-4 overflow-visible" id="podium-container" style="min-height: 420px;">
+                <!-- Injected by JS -->
+            </div>
+
+            <!-- Sección Inferior del Podio -->
+            <div class="mt-8 glass-card p-6 rounded-2xl" id="podium-bottom-container">
+                <!-- Injected by JS -->
+            </div>
+        </section>
+
+        <!-- TAB 3: TABLA GENERAL -->
+        <section id="tab-tabla" class="section-hidden space-y-4">
+            <div class="flex flex-wrap justify-between items-center gap-4">
+                <div>
+                    <h2 class="text-xl font-black uppercase text-gray-900 dark:text-white" id="table-heading">📊 Reporte Operacional</h2>
+                    <p class="text-gray-500 text-xs" id="table-subheading">Ranking y porcentajes de ejecución</p>
+                </div>
+                <button id="export-csv-btn" onclick="exportToCSV()" class="bg-gray-800 hover:bg-gray-900 dark:bg-navy-800 dark:hover:bg-navy-700 text-white px-4 py-2 rounded-lg font-bold text-xs items-center gap-2 shadow-sm transition hidden">
+                    <span>📥</span> Exportar CSV
+                </button>
+            </div>
+
+            <div class="glass-card rounded-2xl overflow-hidden shadow-md">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse text-xs sm:text-sm">
+                        <thead class="bg-gray-100 dark:bg-navy-900 border-b-2 border-gray-300 dark:border-navy-700 text-gray-700 dark:text-gray-300 uppercase tracking-wider text-[11px] font-black">
+                            <tr>
+                                <th class="p-3.5 cursor-pointer hover:text-amber-500" onclick="sortTable('rank')"># Rank ↕</th>
+                                <th class="p-3.5 cursor-pointer hover:text-amber-500" onclick="sortTable('name')" id="table-col-name">Escuadrón ↕</th>
+                                <th class="p-3.5 cursor-pointer hover:text-amber-500" onclick="sortTable('leader')" id="table-col-leader">Líder ↕</th>
+                                <th class="p-3.5 text-center cursor-pointer hover:text-amber-500" onclick="sortTable('compliance')">% Cumplimiento ↕</th>
+                                <th class="p-3.5 text-center">Estado de Misión</th>
+                            </tr>
+                        </thead>
+                        <tbody id="table-body" class="divide-y divide-gray-200 dark:divide-navy-800 font-medium">
+                            <!-- Populated by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Modal: Cargar Nuevo Reporte -->
+    <div id="upload-modal" class="fixed inset-0 bg-black/75 flex items-center justify-center z-[100] hidden backdrop-blur-xs p-4">
+        <div class="bg-white dark:bg-navy-900 border border-gray-300 dark:border-navy-700 rounded-2xl p-6 max-w-xl w-full max-h-[90vh] flex flex-col shadow-2xl">
+            <div class="flex justify-between items-center mb-4 border-b border-gray-200 dark:border-navy-700 pb-3">
+                <div class="flex items-center gap-2">
+                    <span class="text-xl">📡</span>
+                    <h2 class="text-lg font-black uppercase text-gray-900 dark:text-white">Cargar Nuevo Reporte de Combate</h2>
+                </div>
+                <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600 dark:hover:text-white text-2xl font-bold">&times;</button>
+            </div>
+            
+            <div class="space-y-4 overflow-y-auto flex-grow pr-1 text-xs">
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block font-bold mb-1 text-gray-700 dark:text-gray-300 uppercase">Nombre del Corte</label>
+                        <input type="text" id="cut-name" class="w-full bg-gray-50 dark:bg-navy-950 border border-gray-300 dark:border-navy-700 p-2.5 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none text-gray-900 dark:text-white" placeholder="Ej: Corte 5 (Cierre Mes)">
+                    </div>
+                    <div>
+                        <label class="block font-bold mb-1 text-gray-700 dark:text-gray-300 uppercase">Fecha</label>
+                        <input type="date" id="cut-date" class="w-full bg-gray-50 dark:bg-navy-950 border border-gray-300 dark:border-navy-700 p-2.5 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none text-gray-900 dark:text-white">
+                    </div>
+                </div>
+
+                <div class="bg-gray-50 dark:bg-navy-950 p-4 border-2 border-dashed border-gray-300 dark:border-navy-700 rounded-xl text-center">
+                    <p class="mb-2 font-bold text-gray-700 dark:text-gray-300">Opción A: Subir Archivo Excel o CSV</p>
+                    <input type="file" id="file-upload" accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel" class="block w-full text-xs text-gray-500 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-amber-500 file:text-white hover:file:bg-amber-600 cursor-pointer">
+                    <p class="text-[10px] text-gray-400 mt-2">Formato esperado: [Zona/PDV, % Cumplimiento] (ej: Costa, 104.5 o Viva Barranquilla, 108.2)</p>
+                </div>
+
+                <div>
+                    <p class="mb-1 font-bold text-gray-700 dark:text-gray-300">Opción B: Pegar Datos de Texto (CSV)</p>
+                    <textarea id="manual-data" class="w-full h-24 bg-gray-50 dark:bg-navy-950 border border-gray-300 dark:border-navy-700 p-2 rounded-lg font-mono text-xs focus:ring-2 focus:ring-amber-500 outline-none text-gray-900 dark:text-white" placeholder="Costa, 102.5&#10;Valle Centro, 98.2&#10;Centro, 105.0"></textarea>
+                </div>
+
+                <div>
+                    <button onclick="processData()" class="w-full bg-gray-800 hover:bg-gray-900 dark:bg-navy-800 dark:hover:bg-navy-700 text-white font-bold py-2 rounded-lg transition">
+                        🔍 Previsualizar y Validar Datos
+                    </button>
+                </div>
+
+                <div id="preview-container" class="hidden">
+                    <h4 class="font-bold text-gray-900 dark:text-white mb-1.5 flex items-center justify-between">
+                        <span>Vista Previa Detectada:</span>
+                        <span id="preview-count" class="text-amber-500 text-[11px]"></span>
+                    </h4>
+                    <div class="max-h-36 overflow-y-auto bg-gray-100 dark:bg-navy-950 rounded-lg border border-gray-300 dark:border-navy-700">
+                        <table class="w-full text-xs text-left">
+                            <thead class="bg-gray-200 dark:bg-navy-800 sticky top-0 font-bold">
+                                <tr>
+                                    <th class="p-2">Ítem</th>
+                                    <th class="p-2 text-right">% Cumplimiento</th>
+                                </tr>
+                            </thead>
+                            <tbody id="preview-body" class="divide-y divide-gray-300 dark:divide-navy-800"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-4 pt-3 border-t border-gray-200 dark:border-navy-700 flex justify-end gap-2">
+                <button onclick="closeModal()" class="px-4 py-2 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-navy-800 font-bold text-xs transition">
+                    Cancelar
+                </button>
+                <button id="save-cut-btn" onclick="saveNewCut()" class="px-4 py-2 rounded-lg bg-amber-500 hover:bg-amber-600 text-white font-black text-xs transition opacity-50 cursor-not-allowed shadow-md" disabled>
+                    🚀 Guardar y Desplegar Corte
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Autenticación Maestro (Santiago) -->
+    <div id="login-modal" class="fixed inset-0 bg-black/75 flex items-center justify-center z-[110] hidden backdrop-blur-xs p-4">
+        <div class="bg-white dark:bg-navy-900 border border-gray-300 dark:border-navy-700 rounded-2xl p-6 max-w-sm w-full shadow-2xl text-xs flex flex-col">
+            <div class="flex justify-between items-center mb-4 border-b border-gray-200 dark:border-navy-700 pb-3">
+                <div class="flex items-center gap-2">
+                    <span class="text-xl">👑</span>
+                    <h3 class="text-base font-black uppercase text-gray-900 dark:text-white">Acceso Maestro</h3>
+                </div>
+                <button onclick="closeLoginModal()" class="text-gray-400 hover:text-gray-600 dark:hover:text-white text-2xl font-bold leading-none">&times;</button>
+            </div>
+            
+            <form id="master-login-form" onsubmit="handleMasterLogin(event)" class="space-y-4">
+                <div id="login-error-msg" class="hidden p-2.5 bg-red-100 dark:bg-red-950/80 border border-red-300 dark:border-red-700 text-red-700 dark:text-red-300 rounded-lg font-bold text-center"></div>
+
+                <div>
+                    <label class="block font-bold mb-1 text-gray-700 dark:text-gray-300 uppercase tracking-wider">Usuario Maestro</label>
+                    <input type="text" id="login-username" value="Santiago" required class="w-full bg-gray-50 dark:bg-navy-950 border border-gray-300 dark:border-navy-700 p-2.5 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none text-gray-900 dark:text-white font-bold" placeholder="Santiago">
+                </div>
+
+                <div>
+                    <label class="block font-bold mb-1 text-gray-700 dark:text-gray-300 uppercase tracking-wider">Contraseña</label>
+                    <input type="password" id="login-password" required class="w-full bg-gray-50 dark:bg-navy-950 border border-gray-300 dark:border-navy-700 p-2.5 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none text-gray-900 dark:text-white font-bold tracking-widest" placeholder="••••">
+                </div>
+
+                <div class="pt-2 flex justify-end gap-2">
+                    <button type="button" onclick="closeLoginModal()" class="px-4 py-2 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-navy-800 font-bold transition">
+                        Cancelar
+                    </button>
+                    <button type="submit" class="px-4 py-2 rounded-lg bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white font-black shadow-md transition">
+                        Entrar como Maestro
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Quick Tactical Tooltip -->
+    <div id="tactical-tooltip" class="fixed hidden pointer-events-none z-50 bg-gray-900 text-white p-3 rounded-xl shadow-2xl text-xs border border-gray-700 transition-opacity duration-150">
+        <!-- Content set dynamically -->
+    </div>
+
+    <!-- Toast Notifications -->
+    <div id="toast-container"></div>
+
+    <script>
+        // Color configuration for the 11 Leader Zones inspired by the infographic reference
+        const ZONE_CONFIG = {
+            1: { color: '#F59E0B', darkColor: '#D97706', lightColor: '#FEF3C7', label: 'COSTA' },
+            2: { color: '#FF5722', darkColor: '#EA580C', lightColor: '#FFEDD5', label: 'VALLE CENTRO' },
+            3: { color: '#EC4899', darkColor: '#DB2777', lightColor: '#FCE7F3', label: 'CALI SUR' },
+            4: { color: '#4F46E5', darkColor: '#4338CA', lightColor: '#E0E7FF', label: 'ANTIOQUIA / CAS' },
+            5: { color: '#EF4444', darkColor: '#DC2626', lightColor: '#FEE2E2', label: 'SANTANDERES' },
+            6: { color: '#8B5CF6', darkColor: '#7C3AED', lightColor: '#EDE9FE', label: 'EJE CAFETERO' },
+            7: { color: '#E11D48', darkColor: '#BE123C', lightColor: '#FFE4E6', label: 'CALI NORTE' },
+            8: { color: '#0284C7', darkColor: '#0369A1', lightColor: '#E0F2FE', label: 'CENTRO' },
+            9: { color: '#10B981', darkColor: '#059669', lightColor: '#D1FAE5', label: 'MEDELLÍN METRO' },
+            10: { color: '#F97316', darkColor: '#C2410C', lightColor: '#FFEDD5', label: 'HUILA / CAQ' },
+            11: { color: '#06B6D4', darkColor: '#0891B2', lightColor: '#CFFAFE', label: 'NARIÑO' }
+        };
+
+        const SEED_ZONES = [
+            { id: 1, name: 'Costa Caribe', leader: 'Carlos Correa', emoji: '🌊' },
+            { id: 2, name: 'Valle Centro', leader: 'Alexander Lopez', emoji: '🏔️' },
+            { id: 3, name: 'Cali Sur y Popayán', leader: 'Yoryani Valderrama', emoji: '🌿' },
+            { id: 4, name: 'Antioquia y Casanare', leader: 'Andrea Bañol', emoji: '🦅' },
+            { id: 5, name: 'Santanderes y Cesar', leader: 'Fabian Sanchez', emoji: '⛰️' },
+            { id: 6, name: 'Eje Cafetero', leader: 'Andres Osorio', emoji: '☕' },
+            { id: 7, name: 'Cali Norte y Centro', leader: 'Anyela Gonzalez', emoji: '💃' },
+            { id: 8, name: 'Centro y Sabana', leader: 'Andrea Pérez', emoji: '🏙️' },
+            { id: 9, name: 'Medellín Metropolitano', leader: 'Julian Andres Marin', emoji: '⚡' },
+            { id: 10, name: 'Huila y Caquetá', leader: 'Anderson Gelvez', emoji: '🌋' },
+            { id: 11, name: 'Nariño', leader: 'Jose Salazar', emoji: '🗻' }
+        ];
+
+        // Seed PDVs: Base oficial de 94 Puntos de Venta distribuidos en las 11 Zonas de Líderes
+        const SEED_PDVS = [
+            // Alexander Lopez (Valle Centro - 11 PDVs)
+            { id: 1, co: '87', zoneId: 2, name: 'Q087 - Palmira - Centro', leader: 'Alexander Lopez' },
+            { id: 2, co: '73', zoneId: 2, name: 'Q073 - Yumbo - CC. Unico', leader: 'Alexander Lopez' },
+            { id: 3, co: '506', zoneId: 2, name: 'QST506 Palmira - Cc Llanogrande', leader: 'Alexander Lopez' },
+            { id: 4, co: '122', zoneId: 2, name: 'Q122 - Tulua - Centro', leader: 'Alexander Lopez' },
+            { id: 5, co: '14', zoneId: 2, name: 'Q014 - Tulua - CC Herradura', leader: 'Alexander Lopez' },
+            { id: 6, co: '146', zoneId: 2, name: 'Q146 - Palmira Centro 2', leader: 'Alexander Lopez' },
+            { id: 7, co: '153', zoneId: 2, name: 'Q153 Palmira - CC Llanogrande', leader: 'Alexander Lopez' },
+            { id: 8, co: '505', zoneId: 2, name: 'QST505- Tulua - La Herradura', leader: 'Alexander Lopez' },
+            { id: 9, co: '89', zoneId: 2, name: 'Q089 - Palmira CC Unicentro', leader: 'Alexander Lopez' },
+            { id: 10, co: '7', zoneId: 2, name: 'Q007 - Tulua - Centro', leader: 'Alexander Lopez' },
+            { id: 11, co: '88', zoneId: 2, name: 'Q088 - Palmira - CC Llanogrande', leader: 'Alexander Lopez' },
+
+            // Anderson Gelvez (Huila y Caquetá - 6 PDVs)
+            { id: 12, co: '71', zoneId: 10, name: 'Q071 - Neiva - Centro', leader: 'Anderson Gelvez' },
+            { id: 13, co: '145', zoneId: 10, name: 'Q145 Neiva - CC Unicentro', leader: 'Anderson Gelvez' },
+            { id: 14, co: '53', zoneId: 10, name: 'Q053 - Neiva - CC San Pedro Plaza', leader: 'Anderson Gelvez' },
+            { id: 15, co: '56', zoneId: 10, name: 'Q056 - Pitalito - CC San Antonio', leader: 'Anderson Gelvez' },
+            { id: 16, co: '77', zoneId: 10, name: 'Q077 - Florencia - CC Gran Plaza', leader: 'Anderson Gelvez' },
+            { id: 17, co: '117', zoneId: 10, name: 'Q117 - Neiva - CC Unico', leader: 'Anderson Gelvez' },
+
+            // Andrea Pérez (Centro y Sabana - 7 PDVs)
+            { id: 18, co: '85', zoneId: 8, name: 'Q085 - Ibagué - CC La Estación', leader: 'Andrea Pérez' },
+            { id: 19, co: '69', zoneId: 8, name: 'Q069 - Ibague - Centro', leader: 'Andrea Pérez' },
+            { id: 20, co: '124', zoneId: 8, name: 'Q124 -  Bogota - CC Nuestro Bogota', leader: 'Andrea Pérez' },
+            { id: 21, co: '86', zoneId: 8, name: 'Q086 - Villavicencio - CC Viva', leader: 'Andrea Pérez' },
+            { id: 22, co: '155', zoneId: 8, name: 'Q155 Bogota - CC Outlet las Ameri', leader: 'Andrea Pérez' },
+            { id: 23, co: '74', zoneId: 8, name: 'Q074 - Villavicencio - CC Unico', leader: 'Andrea Pérez' },
+            { id: 24, co: '129', zoneId: 8, name: 'Q129 - Bogota - CC Las Americas', leader: 'Andrea Pérez' },
+
+            // Andres Osorio (Eje Cafetero - 7 PDVs)
+            { id: 25, co: '116', zoneId: 6, name: 'Q116 - Cartago - CC Nuestro Cartago', leader: 'Andres Osorio' },
+            { id: 26, co: '91', zoneId: 6, name: 'Q091 - Armenia - Centro', leader: 'Andres Osorio' },
+            { id: 27, co: '58', zoneId: 6, name: 'Q058 - Pereira - CC Victoria Plaza', leader: 'Andres Osorio' },
+            { id: 28, co: '139', zoneId: 6, name: 'Q139 Armenia -', leader: 'Andres Osorio' },
+            { id: 29, co: '97', zoneId: 6, name: 'Q097 Cartago - Centro', leader: 'Andres Osorio' },
+            { id: 30, co: '49', zoneId: 6, name: 'Q049 - Dosquebradas - CC Unico', leader: 'Andres Osorio' },
+            { id: 31, co: '138', zoneId: 6, name: 'Q138 Manizales -', leader: 'Andres Osorio' },
+
+            // Anyela Gonzalez (Cali Norte y Centro - 7 PDVs)
+            { id: 32, co: '31', zoneId: 7, name: 'Q031 - Cali - Centro 1', leader: 'Anyela Gonzalez' },
+            { id: 33, co: '21', zoneId: 7, name: 'Q021 - Cali - CC Chipichape', leader: 'Anyela Gonzalez' },
+            { id: 34, co: '41', zoneId: 7, name: 'Q041 - Cali - CC Calima', leader: 'Anyela Gonzalez' },
+            { id: 35, co: '120', zoneId: 7, name: 'Q120 - Cali - Plaza Q', leader: 'Anyela Gonzalez' },
+            { id: 36, co: '147', zoneId: 7, name: 'Q147 Cali Mall Plaza', leader: 'Anyela Gonzalez' },
+            { id: 37, co: '8', zoneId: 7, name: 'Q008 - Cali - Alameda', leader: 'Anyela Gonzalez' },
+            { id: 38, co: '3', zoneId: 7, name: 'Q003 - Cali - Calle 23', leader: 'Anyela Gonzalez' },
+
+            // Carlos Correa (Costa Caribe - 16 PDVs)
+            { id: 39, co: '78', zoneId: 1, name: 'Q078 -  Soledad - CC - Gran Plaza', leader: 'Carlos Correa' },
+            { id: 40, co: '109', zoneId: 1, name: 'Q109 - Cartagena - CC La Castellana', leader: 'Carlos Correa' },
+            { id: 41, co: '107', zoneId: 1, name: 'Q107 - Monteria - CC Nuestra Monteria', leader: 'Carlos Correa' },
+            { id: 42, co: '140', zoneId: 1, name: 'Q140 Cartagena - CC Mall Plaz', leader: 'Carlos Correa' },
+            { id: 43, co: '106', zoneId: 1, name: 'Q106 - Soledad - CC Nuestro Atlantico', leader: 'Carlos Correa' },
+            { id: 44, co: '68', zoneId: 1, name: 'Q068 - Cartagena - CC. Outlet del Bosque', leader: 'Carlos Correa' },
+            { id: 45, co: '118', zoneId: 1, name: 'Q118 - Sincelejo - CC Guacari', leader: 'Carlos Correa' },
+            { id: 46, co: '23', zoneId: 1, name: 'Q023 - Barranquilla - CC Portal', leader: 'Carlos Correa' },
+            { id: 47, co: '84', zoneId: 1, name: 'Q084 - Santa Marta - Centro', leader: 'Carlos Correa' },
+            { id: 48, co: '154', zoneId: 1, name: 'Q154 - Santa Marta CC Buenavista', leader: 'Carlos Correa' },
+            { id: 49, co: '33', zoneId: 1, name: 'Q033 - Cartagena - CC Caribe Plaza', leader: 'Carlos Correa' },
+            { id: 50, co: '54', zoneId: 1, name: 'Q054 - Sincelejo - Centro', leader: 'Carlos Correa' },
+            { id: 51, co: '62', zoneId: 1, name: 'Q062 - Monteria - CC Alamedas', leader: 'Carlos Correa' },
+            { id: 52, co: '128', zoneId: 1, name: 'Q128 - Barranquilla - CC Alegra', leader: 'Carlos Correa' },
+            { id: 53, co: '92', zoneId: 1, name: 'Q092 - Cartagena - CC San Fernando', leader: 'Carlos Correa' },
+            { id: 54, co: '35', zoneId: 1, name: 'Q035 - Barranquilla - CC Unico', leader: 'Carlos Correa' },
+
+            // Fabian Sanchez (Santanderes y Cesar - 8 PDVs)
+            { id: 55, co: '27', zoneId: 5, name: 'Q027 - Cucuta - CC Ventura Plaza', leader: 'Fabian Sanchez' },
+            { id: 56, co: '157', zoneId: 5, name: 'Q157 - Riohacha - CC Viva Wajira', leader: 'Fabian Sanchez' },
+            { id: 57, co: '115', zoneId: 5, name: 'Q115 - Cucuta - Centro', leader: 'Fabian Sanchez' },
+            { id: 58, co: '509', zoneId: 5, name: 'QST509 Cucuta - Cc Jardin Plaza', leader: 'Fabian Sanchez' },
+            { id: 59, co: '131', zoneId: 5, name: 'Q131 Cucuta CC Jardin Plaza', leader: 'Fabian Sanchez' },
+            { id: 60, co: '80', zoneId: 5, name: 'Q080 - Valledupar  - CC Mayales', leader: 'Fabian Sanchez' },
+            { id: 61, co: '46', zoneId: 5, name: 'Q046 - Cucuta - Centro 2', leader: 'Fabian Sanchez' },
+            { id: 62, co: '102', zoneId: 5, name: 'Q102 Guatapuri Valledupar', leader: 'Fabian Sanchez' },
+
+            // Jose Salazar (Nariño - 5 PDVs)
+            { id: 63, co: '135', zoneId: 11, name: 'Q135 Pasto - Centro', leader: 'Jose Salazar' },
+            { id: 64, co: '45', zoneId: 11, name: 'Q045 - Pasto - CC Unicentro', leader: 'Jose Salazar' },
+            { id: 65, co: '126', zoneId: 11, name: 'Q126 - Ipiales - Centro', leader: 'Jose Salazar' },
+            { id: 66, co: '57', zoneId: 11, name: 'Q057 - Pasto - CC Unico', leader: 'Jose Salazar' },
+            { id: 67, co: '90', zoneId: 11, name: 'Q090 - Ipiales - CC Gran Plaza', leader: 'Jose Salazar' },
+
+            // Yoryani Valderrama (Cali Sur y Popayán - 11 PDVs)
+            { id: 68, co: '502', zoneId: 3, name: 'QST502 - Cali - Cc Unico 2', leader: 'Yoryani Valderrama' },
+            { id: 69, co: '40', zoneId: 3, name: 'Q040 - Cali - CC Unicentro 2', leader: 'Yoryani Valderrama' },
+            { id: 70, co: '39', zoneId: 3, name: 'Q039 - Cali - CC Unico 2', leader: 'Yoryani Valderrama' },
+            { id: 71, co: '44', zoneId: 3, name: 'Q044 - Popayan - Centro', leader: 'Yoryani Valderrama' },
+            { id: 72, co: '16', zoneId: 3, name: 'Q016 - Cali - CC Palmetto', leader: 'Yoryani Valderrama' },
+            { id: 73, co: '29', zoneId: 3, name: 'Q029 - Cali - CC Unico 1', leader: 'Yoryani Valderrama' },
+            { id: 74, co: '133', zoneId: 3, name: 'Q133 Popayan CC Terra Plaza', leader: 'Yoryani Valderrama' },
+            { id: 75, co: '144', zoneId: 3, name: 'Q144 Popayan Centro 2', leader: 'Yoryani Valderrama' },
+            { id: 76, co: '504', zoneId: 3, name: 'QST504 - Cali - Cc Jardin Plaza', leader: 'Yoryani Valderrama' },
+            { id: 77, co: '30', zoneId: 3, name: 'Q030 - Popayan - CC Campanario', leader: 'Yoryani Valderrama' },
+            { id: 78, co: '18', zoneId: 3, name: 'Q018 - Cali - Jardin Plaza', leader: 'Yoryani Valderrama' },
+
+            // Andrea Bañol (Antioquia y Casanare - 10 PDVs)
+            { id: 79, co: '136', zoneId: 4, name: 'Q136 Yopal Centro', leader: 'Andrea Bañol' },
+            { id: 80, co: '83', zoneId: 4, name: 'Q083 -  Yopal - CC Unicentro', leader: 'Andrea Bañol' },
+            { id: 81, co: '112', zoneId: 4, name: 'Q112 - Medellin - CC Molinos', leader: 'Andrea Bañol' },
+            { id: 82, co: '113', zoneId: 4, name: 'Q113 - Envigado - CC Viva', leader: 'Andrea Bañol' },
+            { id: 83, co: '143', zoneId: 4, name: 'Q143 Medellin CC Mayorca', leader: 'Andrea Bañol' },
+            { id: 84, co: '148', zoneId: 4, name: 'Q148 - Carabobo Centro', leader: 'Andrea Bañol' },
+            { id: 85, co: '149', zoneId: 4, name: 'Q149 - Medellín - Centro', leader: 'Andrea Bañol' },
+            { id: 86, co: '156', zoneId: 4, name: 'Q156 - Medellin - CC Santa Fe', leader: 'Andrea Bañol' },
+            { id: 87, co: '508', zoneId: 4, name: 'QST508 Medellin - Cc Mayorca', leader: 'Andrea Bañol' },
+            { id: 88, co: '127', zoneId: 4, name: 'Q127 - Sabaneta CC Mayorca', leader: 'Andrea Bañol' },
+
+            // Julian Andres Marin (Medellín Metropolitano - 6 PDVs)
+            { id: 89, co: 'N10', zoneId: 9, name: 'N10 Carpa Movil Medellin', leader: 'Julian Andres Marin' },
+            { id: 90, co: '94', zoneId: 9, name: 'Q094 - Medellin - CC Aventura', leader: 'Julian Andres Marin' },
+            { id: 91, co: '125', zoneId: 9, name: 'Q125 - Medellin - Plaza Fabricato', leader: 'Julian Andres Marin' },
+            { id: 92, co: '152', zoneId: 9, name: 'Q152 - Rionegro CC San Nicolas', leader: 'Julian Andres Marin' },
+            { id: 93, co: '503', zoneId: 9, name: 'QST503 - CC Florida Medellin', leader: 'Julian Andres Marin' },
+            { id: 94, co: '76', zoneId: 9, name: 'Q076 - Medellin - Cc Florida', leader: 'Julian Andres Marin' }
+        ];
+
+        // Base Oficial: Todos los PDVs y Zonas en 0% (Sin datos de prueba)
+        const initialPdvData = {};
+        SEED_PDVS.forEach(p => {
+            initialPdvData[p.id] = 0;
+        });
+
+        const SEED_CUTS = [
+            { 
+                id: 'corte-inicial', 
+                name: 'Corte Inicial (Base 0%)', 
+                date: new Date().toISOString().split('T')[0], 
+                data: SEED_ZONES.map(z => ({ zoneId: z.id, compliance: 0 })),
+                pdvData: initialPdvData
+            }
+        ];
+
+        // State
+        let cuts = [];
+        let currentCutId = null;
+        let currentZoneScope = 'all'; // 'all' for National, or 1..10 for specific zone PDVs
+        let currentFilter = 'all';
+        let currentSortOrder = 'rank'; // 'rank' or 'geo'
+        let currentTableSort = { column: 'compliance', asc: false };
+        let previewDataCache = [];
+        let currentTheme = 'light';
+        // Control de Perfiles: VIEWER (acceso libre sin clave, solo lectura) | MAESTRO (Santiago / 0814)
+        let currentAuthRole = 'VIEWER';
+
+        function getStatus(compliance) {
+            if (compliance >= 105) return { label: '🔥 AFTERBURNER', badgeClass: 'bg-yellow-400 text-gray-950 font-black', color: '#F59E0B' };
+            if (compliance >= 100) return { label: '✅ META CUMPLIDA', badgeClass: 'bg-emerald-500 text-white font-bold', color: '#10B981' };
+            if (compliance >= 95) return { label: '⚡ EN ZONA META', badgeClass: 'bg-sky-500 text-white font-bold', color: '#0284C7' };
+            if (compliance >= 50) return { label: '⚠️ EN COMBATE', badgeClass: 'bg-orange-500 text-white font-bold', color: '#FF5722' };
+            return { label: '🚨 ZONA DE RIESGO', badgeClass: 'bg-red-500 text-white font-bold', color: '#EF4444' };
+        }
+
+        // Exact stylized supersonic jet silhouette matching the user reference photo
+        function getJetSVG(color, isLeader) {
+            return `
+            <svg viewBox="0 0 100 110" class="jet-silhouette ${isLeader ? 'pulse-winner-plane' : ''}" style="color: ${color};">
+                <path d="
+                    M 50 4 
+                    C 52 4, 55 14, 55 24 
+                    L 94 48 
+                    C 96 49, 96 53, 93 54 
+                    L 55 49 
+                    L 55 82 
+                    L 74 95 
+                    C 76 96, 75 99, 73 99 
+                    L 54 94 
+                    L 50 97 
+                    L 46 94 
+                    L 27 99 
+                    C 25 99, 24 96, 26 95 
+                    L 45 82 
+                    L 45 49 
+                    L 7 54 
+                    C 4 53, 4 49, 6 48 
+                    L 45 24 
+                    C 45 14, 48 4, 50 4 
+                    Z"
+                    fill="${color}" 
+                    stroke="#FFFFFF" 
+                    stroke-width="3.8" 
+                    stroke-linejoin="round"
+                    stroke-linecap="round"
+                />
+            </svg>`;
+        }
+
+        // Web Audio Synthesizer for Jet Whoosh Sound
+        function playJetSound() {
+            try {
+                const AudioCtx = window.AudioContext || window.webkitAudioContext;
+                if (!AudioCtx) return;
+                const ctx = new AudioCtx();
+                const bufferSize = ctx.sampleRate * 0.7;
+                const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+                const data = buffer.getChannelData(0);
+                for (let i = 0; i < bufferSize; i++) {
+                    data[i] = Math.random() * 2 - 1;
+                }
+                const noise = ctx.createBufferSource();
+                noise.buffer = buffer;
+
+                const filter = ctx.createBiquadFilter();
+                filter.type = 'bandpass';
+                filter.frequency.setValueAtTime(250, ctx.currentTime);
+                filter.frequency.exponentialRampToValueAtTime(1400, ctx.currentTime + 0.35);
+                filter.frequency.exponentialRampToValueAtTime(200, ctx.currentTime + 0.7);
+
+                const gain = ctx.createGain();
+                gain.gain.setValueAtTime(0.01, ctx.currentTime);
+                gain.gain.linearRampToValueAtTime(0.18, ctx.currentTime + 0.25);
+                gain.gain.linearRampToValueAtTime(0.001, ctx.currentTime + 0.7);
+
+                noise.connect(filter);
+                filter.connect(gain);
+                gain.connect(ctx.destination);
+                noise.start();
+            } catch(e) {}
+        }
+
+        // Toast Messages
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type === 'error' ? 'bg-red-600 text-white' : 'bg-gray-900 dark:bg-navy-800 text-white border border-amber-500'}`;
+            toast.innerHTML = `<p class="font-bold flex items-center gap-2"><span>${type === 'error' ? '⚠️' : '🚀'}</span> ${message}</p>`;
+            container.appendChild(toast);
+            
+            void toast.offsetWidth;
+            toast.classList.add('show');
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // Theme Toggle
+        function toggleTheme() {
+            const body = document.body;
+            if (body.classList.contains('theme-light')) {
+                body.classList.remove('theme-light');
+                body.classList.add('theme-dark');
+                document.documentElement.classList.add('dark');
+                currentTheme = 'dark';
+                document.getElementById('theme-icon').textContent = '☀️';
+                document.getElementById('theme-text').textContent = 'Modo Infografía';
+            } else {
+                body.classList.remove('theme-dark');
+                body.classList.add('theme-light');
+                document.documentElement.classList.remove('dark');
+                currentTheme = 'light';
+                document.getElementById('theme-icon').textContent = '🌙';
+                document.getElementById('theme-text').textContent = 'Modo Hangar';
+            }
+            localStorage.setItem('questTheme', currentTheme);
+        }
+
+        // Initialization
+        function init() {
+            // Inicializar Roles y Autenticación (Espectador vs Maestro Santiago)
+            initAuth();
+
+            // Restore theme
+            const savedTheme = localStorage.getItem('questTheme') || 'light';
+            if (savedTheme === 'dark') {
+                document.body.classList.remove('theme-light');
+                document.body.classList.add('theme-dark');
+                document.documentElement.classList.add('dark');
+                currentTheme = 'dark';
+                document.getElementById('theme-icon').textContent = '☀️';
+                document.getElementById('theme-text').textContent = 'Modo Infografía';
+            }
+
+            // Restore cuts (Limpieza automática de datos de prueba previos)
+            const savedCuts = localStorage.getItem('questCuts');
+            if (savedCuts) {
+                try {
+                    const parsed = JSON.parse(savedCuts);
+                    const hasTestMockData = parsed.some(c => c.id === 'corte-1' || c.id === 'corte-2' || c.id === 'corte-3' || c.id === 'corte-final');
+                    if (hasTestMockData || !parsed.length || !parsed[0].data || parsed[0].data.length !== SEED_ZONES.length) {
+                        cuts = JSON.parse(JSON.stringify(SEED_CUTS));
+                        localStorage.setItem('questCuts', JSON.stringify(cuts));
+                    } else {
+                        cuts = parsed;
+                    }
+                } catch(e) {
+                    cuts = JSON.parse(JSON.stringify(SEED_CUTS));
+                    localStorage.setItem('questCuts', JSON.stringify(cuts));
+                }
+            } else {
+                cuts = JSON.parse(JSON.stringify(SEED_CUTS));
+                localStorage.setItem('questCuts', JSON.stringify(cuts));
+            }
+            
+            currentCutId = cuts[cuts.length - 1].id;
+            
+            populateCutSelector();
+            populateZoneScopeSelector();
+
+            document.getElementById('cut-selector').value = currentCutId;
+            document.getElementById('cut-selector').addEventListener('change', (e) => {
+                currentCutId = e.target.value;
+                playJetSound();
+                renderAll();
+            });
+
+            document.getElementById('file-upload').addEventListener('change', handleFileUpload);
+
+            renderAll();
+
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('zone')) {
+                changeZoneScope(urlParams.get('zone'));
+            }
+
+            if (window.location.hash) {
+                const tab = window.location.hash.replace('#', '');
+                const tabBtn = document.querySelector(`button[onclick*="switchTab('${tab}'"]`);
+                if (tabBtn) switchTab(tab, tabBtn);
+            }
+        }
+
+        function populateCutSelector() {
+            const select = document.getElementById('cut-selector');
+            select.innerHTML = cuts.map(cut => 
+                `<option value="${cut.id}">${cut.name} (${cut.date})</option>`
+            ).join('');
+        }
+
+        function populateZoneScopeSelector() {
+            const select = document.getElementById('zone-scope-selector');
+            let opts = `<option value="all">🌐 Vista Nacional (11 Zonas / 94 PDVs)</option>`;
+            SEED_ZONES.forEach(z => {
+                const pdvCount = SEED_PDVS.filter(p => p.zoneId === z.id).length;
+                opts += `<option value="${z.id}">${z.emoji} ${z.name} - ${z.leader} (${pdvCount} PDVs)</option>`;
+            });
+            select.innerHTML = opts;
+        }
+
+        function changeZoneScope(scope) {
+            currentZoneScope = scope;
+            document.getElementById('zone-scope-selector').value = scope;
+            playJetSound();
+            renderAll();
+        }
+
+        function getPDVCompliance(pdv, zoneCompliance, cutIndex) {
+            return 0;
+        }
+
+        function getCurrentData() {
+            const cut = cuts.find(c => c.id === currentCutId) || cuts[0];
+            const cutIndex = cuts.findIndex(c => c.id === currentCutId);
+            if (!cut) return [];
+            
+            if (currentZoneScope === 'all') {
+                // National view: 11 Leader Zones
+                let list = SEED_ZONES.map(zone => {
+                    const zData = cut.data ? cut.data.find(d => d.zoneId === zone.id) : null;
+                    let compliance = zData ? zData.compliance : 0;
+
+                    // Auto-calculate from pdvData if zone compliance is missing or 0
+                    if ((!compliance || compliance === 0) && cut.pdvData) {
+                        const pdvsOfZone = SEED_PDVS.filter(p => p.zoneId === zone.id);
+                        let sum = 0, count = 0;
+                        pdvsOfZone.forEach(p => {
+                            if (cut.pdvData[p.id] !== undefined) {
+                                sum += cut.pdvData[p.id];
+                                count++;
+                            }
+                        });
+                        if (count > 0) compliance = Math.round((sum / count) * 10) / 10;
+                    }
+
+                    const conf = ZONE_CONFIG[zone.id] || { color: '#0284C7', darkColor: '#0369A1', lightColor: '#E0F2FE', label: zone.name };
+                    const pdvCount = SEED_PDVS.filter(p => p.zoneId === zone.id).length;
+                    return {
+                        ...zone,
+                        isPDV: false,
+                        compliance,
+                        status: getStatus(compliance),
+                        color: conf.color,
+                        darkColor: conf.darkColor,
+                        shortLabel: conf.label,
+                        pdvCount
+                    };
+                });
+
+                const sortedByCompliance = [...list].sort((a, b) => b.compliance - a.compliance);
+                list.forEach(z => {
+                    z.rank = sortedByCompliance.findIndex(s => s.id === z.id) + 1;
+                });
+
+                if (currentSortOrder === 'rank') {
+                    list.sort((a, b) => b.compliance - a.compliance);
+                } else {
+                    list.sort((a, b) => a.id - b.id);
+                }
+
+                return list;
+            } else {
+                // Zone view: PDVs of selected zone
+                const zoneId = parseInt(currentZoneScope);
+                const zone = SEED_ZONES.find(z => z.id === zoneId) || SEED_ZONES[0];
+                const zData = cut.data.find(d => d.zoneId === zone.id);
+                const zoneCompliance = zData ? zData.compliance : 0;
+                const conf = ZONE_CONFIG[zone.id] || { color: '#0284C7', darkColor: '#0369A1', lightColor: '#E0F2FE', label: zone.name };
+
+                const pdvsOfZone = SEED_PDVS.filter(p => p.zoneId === zone.id);
+
+                let list = pdvsOfZone.map((pdv) => {
+                    let compliance = 0;
+                    if (cut.pdvData && cut.pdvData[pdv.id] !== undefined) {
+                        compliance = cut.pdvData[pdv.id];
+                    } else {
+                        compliance = getPDVCompliance(pdv, zoneCompliance, cutIndex);
+                    }
+
+                    return {
+                        ...pdv,
+                        isPDV: true,
+                        zoneName: zone.name,
+                        emoji: '🏪',
+                        compliance,
+                        status: getStatus(compliance),
+                        color: conf.color,
+                        darkColor: conf.darkColor,
+                        shortLabel: pdv.name.toUpperCase()
+                    };
+                });
+
+                const sortedByCompliance = [...list].sort((a, b) => b.compliance - a.compliance);
+                list.forEach(p => {
+                    p.rank = sortedByCompliance.findIndex(s => s.id === p.id) + 1;
+                });
+
+                if (currentSortOrder === 'rank') {
+                    list.sort((a, b) => b.compliance - a.compliance);
+                } else {
+                    list.sort((a, b) => a.id - b.id);
+                }
+
+                return list;
+            }
+        }
+
+        function renderAll() {
+            updateNavigationHeaders();
+            renderRunwayLanes();
+            renderPodium();
+            renderTable();
+            updateStats();
+        }
+
+        function updateNavigationHeaders() {
+            const breadcrumb = document.getElementById('zone-breadcrumb');
+            const activeBadge = document.getElementById('zone-active-badge');
+            const arenaLeft = document.getElementById('arena-header-left');
+            const arenaCenter = document.getElementById('arena-header-center');
+            const runwayStatus = document.getElementById('runway-status-label');
+            const runwayFormation = document.getElementById('runway-formation-label');
+            const tabPodioTitle = document.getElementById('tab-podio-title');
+            const podiumHeading = document.getElementById('podium-heading');
+            const podiumSubheading = document.getElementById('podium-subheading');
+            const tableHeading = document.getElementById('table-heading');
+            const tableSubheading = document.getElementById('table-subheading');
+            const tableColName = document.getElementById('table-col-name');
+            const tableColLeader = document.getElementById('table-col-leader');
+
+            if (currentZoneScope === 'all') {
+                breadcrumb.classList.add('hidden');
+                arenaLeft.textContent = 'ALTÍMETRO DE COMBATE // NACIONAL';
+                arenaCenter.textContent = 'ESCUADRÓN NACIONAL // 11 ZONAS LÍDERES // 94 TIENDAS';
+                runwayStatus.textContent = 'PISTA ACTIVA // CABECERA NACIONAL';
+                runwayFormation.textContent = 'ESCUADRONES EN FORMACIÓN VERTICAL';
+                tabPodioTitle.textContent = 'Podio de Honor (Top 2)';
+                podiumHeading.innerHTML = '<span>🏆</span> <span>Podio de Honor Nacional (Top 2)</span> <span>🥈</span>';
+                podiumSubheading.textContent = 'Los 2 comandantes de zona con mayor altitud en cumplimiento en este corte';
+                tableHeading.textContent = '📊 Reporte Operacional Nacional';
+                tableSubheading.textContent = 'Ranking consolidado de las 11 zonas estratégicas (94 PDVs)';
+                tableColName.textContent = 'Zona / Escuadrón ↕';
+                tableColLeader.textContent = 'Comandante ↕';
+            } else {
+                const zoneId = parseInt(currentZoneScope);
+                const zone = SEED_ZONES.find(z => z.id === zoneId);
+                const conf = ZONE_CONFIG[zoneId] || { color: '#0284C7' };
+                const pdvCount = SEED_PDVS.filter(p => p.zoneId === zoneId).length;
+
+                breadcrumb.classList.remove('hidden');
+                activeBadge.style.backgroundColor = conf.color;
+                activeBadge.textContent = `${zone.emoji} Zona ${zone.name} (${pdvCount} PDVs)`;
+
+                arenaLeft.textContent = `ALTÍMETRO // ZONA ${zone.name.toUpperCase()}`;
+                arenaCenter.textContent = `ESCUADRÓN DE COMBATE // ${pdvCount} PUNTOS DE VENTA // ${zone.leader.toUpperCase()}`;
+                runwayStatus.textContent = `PISTA ${zone.name.toUpperCase()} // DESPEGUE PDVs`;
+                runwayFormation.textContent = `TIENDAS EN FORMACIÓN DE COMBATE`;
+                tabPodioTitle.textContent = `Podio PDVs ${zone.name} (Top 2)`;
+                podiumHeading.innerHTML = `<span>🏆</span> <span>Podio de Honor - Zona ${zone.name} (Top 2)</span> <span>🥈</span>`;
+                podiumSubheading.textContent = `Las 2 tiendas con mayor altitud de cumplimiento en la Zona ${zone.name}`;
+                tableHeading.textContent = `📊 Reporte de Puntos de Venta - Zona ${zone.name}`;
+                tableSubheading.textContent = `Ranking detallado de los ${pdvCount} PDVs adscritos a ${zone.leader}`;
+                tableColName.textContent = 'Punto de Venta (PDV) ↕';
+                tableColLeader.textContent = 'Líder de Tienda ↕';
+            }
+        }
+
+        function switchTab(tabId, btn) {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('main > section').forEach(s => s.classList.add('section-hidden'));
+            
+            btn.classList.add('active');
+            document.getElementById(`tab-${tabId}`).classList.remove('section-hidden');
+        }
+
+        function setFilter(filter, btn) {
+            currentFilter = filter;
+            document.querySelectorAll('.filter-btn').forEach(b => {
+                b.classList.remove('bg-amber-500', 'text-white');
+                b.classList.add('bg-gray-200', 'dark:bg-navy-800', 'text-gray-700', 'dark:text-gray-300');
+            });
+            btn.classList.remove('bg-gray-200', 'dark:bg-navy-800', 'text-gray-700', 'dark:text-gray-300');
+            btn.classList.add('bg-amber-500', 'text-white');
+            renderRunwayLanes();
+        }
+
+        function toggleSortOrder(order) {
+            currentSortOrder = order;
+            const rankBtn = document.getElementById('sort-rank-btn');
+            const geoBtn = document.getElementById('sort-geo-btn');
+
+            if (order === 'rank') {
+                rankBtn.className = "px-2.5 py-1 rounded font-bold bg-white dark:bg-navy-800 text-gray-900 dark:text-white shadow-xs";
+                geoBtn.className = "px-2.5 py-1 rounded font-bold text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white";
+            } else {
+                geoBtn.className = "px-2.5 py-1 rounded font-bold bg-white dark:bg-navy-800 text-gray-900 dark:text-white shadow-xs";
+                rankBtn.className = "px-2.5 py-1 rounded font-bold text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white";
+            }
+            renderRunwayLanes();
+        }
+
+        function updateStats() {
+            const data = getCurrentData();
+            const total = data.length;
+            const avg = total > 0 ? (data.reduce((sum, z) => sum + z.compliance, 0) / total) : 0;
+            const met = data.filter(z => z.compliance >= 100).length;
+            const danger = data.filter(z => z.compliance < 95).length;
+
+            document.getElementById('count-all').textContent = total;
+            const entityLabel = currentZoneScope === 'all' ? 'Zonas' : 'PDVs';
+
+            document.getElementById('stats-summary').innerHTML = 
+                `<span>Promedio: <strong class="text-amber-500 font-black">${avg.toFixed(1)}%</strong></span> &bull; 
+                 <span>Cumplen Meta: <strong class="text-emerald-500 font-black">${met}/${total} ${entityLabel}</strong></span> &bull; 
+                 <span>Riesgo: <strong class="text-red-500 font-black">${danger}</strong></span>`;
+        }
+
+        /* 
+           RENDERING THE 3D RUNWAY LANES (Con holgura vertical completa para que los aviones NUNCA se corten)
+           - Altura calculada con techo seguro
+           - Padding superior de 96px en el contenedor de scroll
+           - Sin overflow-hidden que corte las puntas de las alas o nariz
+        */
+        function renderRunwayLanes() {
+            const container = document.getElementById('lanes-container');
+            let data = getCurrentData();
+            
+            if (currentFilter === 'meta') data = data.filter(z => z.compliance >= 100);
+            if (currentFilter === 'riesgo') data = data.filter(z => z.compliance < 95);
+
+            if (data.length === 0) {
+                container.innerHTML = '<div class="py-16 text-center text-gray-500 font-bold w-full">Ningún escuadrón coincide con el filtro seleccionado.</div>';
+                return;
+            }
+
+            // Altura escalada para que el avión más alto quede holgadamente dentro del contenedor sin cortarse
+            const calcBarHeight = (compliance) => {
+                const capped = Math.min(Math.max(compliance, 0), 125);
+                return Math.round(25 + (capped / 120) * 245);
+            };
+
+            let html = '';
+            
+            data.forEach((item) => {
+                const heightPx = calcBarHeight(item.compliance);
+                const isLeader = item.rank === 1;
+                const isAfterburner = item.compliance >= 105;
+                const jetSvg = getJetSVG(item.color, isLeader);
+                const drillDownAction = !item.isPDV ? `onclick="event.stopPropagation(); changeZoneScope('${item.id}');"` : `onclick="playJetSound()"`;
+
+                html += `
+                <!-- Lane Column -->
+                <div class="lane-column flex flex-col items-center flex-shrink-0 cursor-pointer w-[86px] sm:w-[102px] md:w-[110px]"
+                     onmouseenter="showTacticalTooltip(event, ${item.id}, ${item.isPDV})" 
+                     onmousemove="moveTacticalTooltip(event)" 
+                     onmouseleave="hideTacticalTooltip()"
+                     ${item.isPDV ? 'onclick="playJetSound()"' : `onclick="changeZoneScope('${item.id}')"`}>
+                    
+                    <!-- 1. Vertical Flight Bar & Jet Summit -->
+                    <div class="w-[66px] sm:w-[78px] md:w-[86px] flex flex-col justify-end relative">
+                        
+                        <!-- Flight Bar Column (Animated height) -->
+                        <div class="flight-bar w-full rounded-t-sm flex flex-col justify-end items-center relative" 
+                             style="height: ${heightPx}px; background-color: ${item.color};">
+                            
+                            <!-- Jet Plane Cap at Summit (Totalmente visible sin cortes) -->
+                            <div class="jet-cap">
+                                ${jetSvg}
+                                ${isAfterburner ? '<div class="afterburner-flame"></div>' : ''}
+                            </div>
+
+                            <!-- Percentage Label (Con padding inferior holgado) -->
+                            <div class="text-white font-black text-sm sm:text-base md:text-lg tracking-tight text-center pb-3.5 drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] select-none">
+                                ${item.compliance.toFixed(0)}%
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 2. Perspective Runway Ramp (Trapezoid connecting bar to front card) -->
+                    <div class="w-full h-14 sm:h-16 relative -mt-[1px]">
+                        <svg class="w-full h-full block" viewBox="0 0 100 60" preserveAspectRatio="none">
+                            <defs>
+                                <linearGradient id="ramp-grad-${item.id}" x1="0" y1="0" x2="0" y2="1">
+                                    <stop offset="0%" stop-color="${item.darkColor}" stop-opacity="0.95" />
+                                    <stop offset="100%" stop-color="${item.color}" stop-opacity="1" />
+                                </linearGradient>
+                            </defs>
+                            <!-- Perspective Ramp Polygon -->
+                            <polygon points="12,0 88,0 100,60 0,60" fill="url(#ramp-grad-${item.id})" />
+                            
+                            <!-- Runway Centerline Dashes -->
+                            <line x1="50" y1="5" x2="50" y2="55" stroke="rgba(255,255,255,0.75)" stroke-width="2.5" stroke-dasharray="6 4" />
+                        </svg>
+                    </div>
+
+                    <!-- 3. Front Option Card (Sin valores monetarios) -->
+                    <div class="front-card w-full rounded-b-lg p-2.5 text-white flex flex-col justify-between -mt-[1px]"
+                         style="background-color: ${item.color}; min-height: ${item.isPDV ? '105px' : '115px'};">
+                        
+                        <!-- Title & Rank -->
+                        <div>
+                            <div class="flex items-center justify-between gap-1 mb-1">
+                                <span class="bg-black/35 text-white font-black text-[9px] px-1.5 py-0.5 rounded">#${item.rank}</span>
+                                <span class="text-xs">${item.emoji}</span>
+                            </div>
+                            <h3 class="font-black text-[11px] sm:text-xs leading-tight uppercase tracking-tight truncate" title="${item.name}">
+                                ${item.shortLabel}
+                            </h3>
+                            <p class="text-[9px] text-white/85 leading-tight truncate mt-0.5" title="${item.leader}">
+                                ${item.leader.replace('Cmdte. ', '')}
+                            </p>
+                        </div>
+
+                        <!-- Status Badge & Action -->
+                        <div class="mt-2 space-y-1">
+                            <div class="text-[8.5px] font-black uppercase text-center py-0.5 px-1 rounded bg-black/30 text-white truncate shadow-xs">
+                                ${item.compliance >= 100 ? '✅ META' : (item.compliance >= 95 ? '⚡ EN ZONA' : '🚨 RIESGO')}
+                            </div>
+                            
+                            ${!item.isPDV ? `
+                            <button class="w-full py-0.5 text-[8px] font-black bg-white/20 hover:bg-white text-white hover:text-gray-950 rounded transition flex items-center justify-center gap-0.5 tracking-wider uppercase" 
+                                    ${drillDownAction}>
+                                <span>Ver ${item.pdvCount} PDVs 🔍</span>
+                            </button>
+                            ` : ''}
+                        </div>
+                    </div>
+
+                </div>
+                `;
+            });
+
+            container.innerHTML = html;
+        }
+
+        // Tactical HUD Tooltip
+        function showTacticalTooltip(event, itemId, isPDV) {
+            const data = getCurrentData();
+            const item = data.find(z => z.id === itemId);
+            if (!item) return;
+
+            const tooltip = document.getElementById('tactical-tooltip');
+
+            tooltip.innerHTML = `
+                <div class="font-black text-amber-400 text-sm flex items-center justify-between border-b border-gray-700 pb-1 mb-1.5">
+                    <span>${item.emoji} ${item.name}</span>
+                    <span class="text-xs bg-amber-500/20 px-1.5 py-0.5 rounded text-white font-bold">#${item.rank}</span>
+                </div>
+                <div class="space-y-1 text-[11px]">
+                    ${isPDV ? `<div><span class="text-gray-400">Zona Matriz:</span> <span class="font-bold text-amber-200">Zona ${item.zoneName}</span></div>` : ''}
+                    <div><span class="text-gray-400">${isPDV ? 'Líder PDV:' : 'Comandante:'}</span> <span class="font-bold">${item.leader}</span></div>
+                    <div><span class="text-gray-400">Cumplimiento:</span> <span class="font-black text-amber-300 text-sm">${item.compliance.toFixed(1)}%</span></div>
+                    <div class="mt-1.5 pt-1 border-t border-gray-700/60 text-[10px] text-center font-bold ${item.compliance >= 100 ? 'text-emerald-300' : 'text-orange-300'}">
+                        ${item.status.label}
+                    </div>
+                    ${!isPDV ? `<div class="text-[9px] text-center text-amber-400 mt-1 italic">👉 Haz clic para abrir los ${item.pdvCount} PDVs de esta zona</div>` : ''}
+                </div>
+            `;
+            tooltip.classList.remove('hidden');
+            moveTacticalTooltip(event);
+        }
+
+        function moveTacticalTooltip(event) {
+            const tooltip = document.getElementById('tactical-tooltip');
+            const x = event.clientX + 15;
+            const y = event.clientY + 15;
+            tooltip.style.left = `${Math.min(x, window.innerWidth - 240)}px`;
+            tooltip.style.top = `${Math.min(y, window.innerHeight - 180)}px`;
+        }
+
+        function hideTacticalTooltip() {
+            document.getElementById('tactical-tooltip').classList.add('hidden');
+        }
+
+        // TAB 2: PODIO (TOP 2)
+        function renderPodium() {
+            const data = getCurrentData();
+            const container = document.getElementById('podium-container');
+            const bottomContainer = document.getElementById('podium-bottom-container');
+            if (data.length < 2) return;
+
+            const top = [...data].sort((a, b) => b.compliance - a.compliance);
+
+            const places = [
+                { 
+                    rank: 2, 
+                    data: top[1], 
+                    height: '180px', 
+                    color: '#00F0FF', 
+                    medal: '🥈', 
+                    label: 'SUBCAMPEÓN', 
+                    badgeClass: 'bg-hud-cyan/20 text-hud-cyan border border-hud-cyan/40' 
+                },
+                { 
+                    rank: 1, 
+                    data: top[0], 
+                    height: '240px', 
+                    color: '#FFD700', 
+                    medal: '🏆', 
+                    label: currentZoneScope === 'all' ? 'COMANDANTE SUPREMO' : 'PDV ESTRELLA', 
+                    badgeClass: 'bg-yellow-500/20 text-yellow-400 border border-yellow-400/40' 
+                }
+            ];
+
+            let podiumHtml = '';
+            places.forEach(p => {
+                const isWinner = p.rank === 1;
+                podiumHtml += `
+                <div class="flex flex-col items-center w-36 sm:w-48 md:w-56 transition transform hover:scale-105">
+                    
+                    <!-- Medalla / Trofeo con espacio suficiente -->
+                    <div class="text-4xl sm:text-5xl mb-3 drop-shadow-lg ${isWinner ? 'animate-bounce' : ''}">${p.medal}</div>
+                    
+                    <!-- Tarjeta del Escuadrón (Sin valores monetarios) -->
+                    <div class="glass-card text-center mb-3 p-3 sm:p-4 rounded-xl w-full shadow-md border-t-2" style="border-top-color: ${p.color};">
+                        <span class="text-[9px] sm:text-[10px] font-black uppercase px-2 py-0.5 rounded-full ${p.badgeClass}">
+                            ${p.label}
+                        </span>
+                        <div class="font-black text-xs sm:text-sm md:text-base text-gray-900 dark:text-white truncate mt-1.5" title="${p.data.name}">
+                            ${p.data.name}
+                        </div>
+                        <div class="text-[10px] text-gray-400 truncate mt-0.5">${p.data.leader}</div>
+                        <div class="font-black text-base sm:text-xl mt-1.5 drop-shadow-xs" style="color: ${p.data.color}">
+                            ${p.data.compliance.toFixed(1)}%
+                        </div>
+                    </div>
+
+                    <!-- Pilar Sólido del Podio -->
+                    <div class="w-full rounded-t-2xl flex flex-col items-center justify-center font-black text-3xl sm:text-4xl text-white shadow-xl relative overflow-hidden" 
+                         style="height: ${p.height}; background: linear-gradient(to bottom, ${p.data.color}, ${p.data.darkColor});">
+                        <span class="drop-shadow-[0_2px_4px_rgba(0,0,0,0.6)]">${p.rank}</span>
+                        <div class="absolute bottom-2 text-[9px] uppercase tracking-widest font-black opacity-80">
+                            ${p.rank === 1 ? 'CAMPEÓN' : 'FINALISTA'}
+                        </div>
+                    </div>
+                </div>
+                `;
+            });
+            container.innerHTML = podiumHtml;
+
+            // Sección inferior del Podio
+            if (currentZoneScope === 'all') {
+                let leaderboardHtml = `
+                    <div class="text-center mb-6">
+                        <h3 class="text-lg font-black uppercase tracking-wider text-gray-900 dark:text-white">
+                            📋 Clasificación de Combate - Todas las Zonas
+                        </h3>
+                        <p class="text-gray-500 text-xs">Cuadro de honor y posiciones del corte actual</p>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
+                `;
+
+                top.forEach(zone => {
+                    leaderboardHtml += `
+                    <div class="p-3 rounded-xl border border-gray-200 dark:border-navy-700 bg-gray-50 dark:bg-navy-950/60 shadow-xs flex flex-col justify-between hover:border-amber-500 transition cursor-pointer" onclick="changeZoneScope('${zone.id}')" title="Clic para ver sus PDVs">
+                        <div class="flex items-center justify-between gap-1 mb-1.5">
+                            <span class="w-6 h-6 rounded-full text-white text-xs font-black flex items-center justify-center shadow-xs" style="background-color: ${zone.color};">
+                                #${zone.rank}
+                            </span>
+                            <span class="text-base">${zone.emoji}</span>
+                        </div>
+                        <div>
+                            <div class="font-black text-xs text-gray-900 dark:text-white truncate" title="${zone.name}">${zone.name}</div>
+                            <div class="text-[10px] text-gray-500 truncate">${zone.leader}</div>
+                        </div>
+                        <div class="mt-2 pt-1.5 border-t border-gray-200 dark:border-navy-800 flex items-center justify-between">
+                            <span class="font-black text-xs sm:text-sm" style="color: ${zone.color};">${zone.compliance.toFixed(1)}%</span>
+                            <span class="text-[8px] font-bold px-1.5 py-0.5 rounded ${zone.compliance >= 100 ? 'bg-emerald-500/20 text-emerald-500' : 'bg-gray-200 dark:bg-navy-800 text-gray-500'}">
+                                ${zone.status.label}
+                            </span>
+                        </div>
+                    </div>
+                    `;
+                });
+
+                leaderboardHtml += '</div>';
+                bottomContainer.innerHTML = leaderboardHtml;
+            } else {
+                const zoneId = parseInt(currentZoneScope);
+                const zone = SEED_ZONES.find(z => z.id === zoneId);
+
+                let rankHtml = `
+                    <div class="text-center mb-6">
+                        <h3 class="text-lg font-black uppercase tracking-wider text-gray-900 dark:text-white">
+                            📋 Clasificación General - Tiendas de Zona ${zone.name}
+                        </h3>
+                        <p class="text-gray-500 text-xs">Desempeño ordenado de todas las tiendas de esta zona</p>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                `;
+
+                top.forEach(pdv => {
+                    rankHtml += `
+                    <div class="p-3 rounded-xl border border-gray-200 dark:border-navy-700 bg-gray-50 dark:bg-navy-950/60 shadow-xs flex items-center justify-between">
+                        <div class="flex items-center gap-2.5">
+                            <span class="w-6 h-6 rounded-full text-white text-xs font-black flex items-center justify-center shadow-xs" style="background-color: ${pdv.color};">
+                                #${pdv.rank}
+                            </span>
+                            <div>
+                                <div class="font-black text-xs text-gray-900 dark:text-white">${pdv.name}</div>
+                                <div class="text-[10px] text-gray-500">${pdv.leader}</div>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <div class="font-black text-xs sm:text-sm" style="color: ${pdv.color}">${pdv.compliance.toFixed(1)}%</div>
+                            <span class="text-[8px] font-bold ${pdv.compliance >= 100 ? 'text-emerald-500' : 'text-gray-400'}">${pdv.status.label}</span>
+                        </div>
+                    </div>
+                    `;
+                });
+
+                rankHtml += '</div>';
+                bottomContainer.innerHTML = rankHtml;
+            }
+        }
+
+        // TAB 3: TABLA GENERAL (Sin valores monetarios)
+        function renderTable() {
+            let data = getCurrentData();
+            
+            data.sort((a, b) => {
+                let valA = a[currentTableSort.column];
+                let valB = b[currentTableSort.column];
+                if (typeof valA === 'string') valA = valA.toLowerCase();
+                if (typeof valB === 'string') valB = valB.toLowerCase();
+                if (valA < valB) return currentTableSort.asc ? -1 : 1;
+                if (valA > valB) return currentTableSort.asc ? 1 : -1;
+                return 0;
+            });
+
+            const tbody = document.getElementById('table-body');
+            tbody.innerHTML = data.map((item) => `
+                <tr class="hover:bg-gray-50 dark:hover:bg-navy-800/60 transition ${!item.isPDV ? 'cursor-pointer' : ''}" 
+                    ${!item.isPDV ? `onclick="changeZoneScope('${item.id}')"` : ''}>
+                    <td class="p-3.5 font-black text-gray-900 dark:text-white">
+                        <span class="inline-block w-6 h-6 rounded-full text-center leading-6 text-xs text-white shadow-xs" style="background-color: ${item.color}">
+                            #${item.rank}
+                        </span>
+                    </td>
+                    <td class="p-3.5">
+                        <div class="flex items-center gap-2">
+                            <span class="text-base">${item.emoji}</span>
+                            <span class="font-black text-gray-900 dark:text-white">${item.name}</span>
+                            ${!item.isPDV ? `<span class="text-[10px] px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-600 dark:text-amber-400 font-bold">Ver ${item.pdvCount} PDVs 🔍</span>` : ''}
+                        </div>
+                    </td>
+                    <td class="p-3.5 text-gray-600 dark:text-gray-400 font-medium">${item.leader}</td>
+                    <td class="p-3.5 text-center">
+                        <div class="font-black text-sm" style="color: ${item.color}">${item.compliance.toFixed(1)}%</div>
+                        <div class="w-28 mx-auto bg-gray-200 dark:bg-navy-950 h-2 rounded-full mt-1 overflow-hidden">
+                            <div class="h-full rounded-full transition-all duration-500" style="width: ${Math.min(item.compliance, 100)}%; background-color: ${item.color}"></div>
+                        </div>
+                    </td>
+                    <td class="p-3.5 text-center">
+                        <span class="text-[10px] px-2.5 py-1 rounded-md font-bold uppercase tracking-wide ${item.status.badgeClass}">
+                            ${item.status.label}
+                        </span>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function sortTable(column) {
+            if (currentTableSort.column === column) {
+                currentTableSort.asc = !currentTableSort.asc;
+            } else {
+                currentTableSort.column = column;
+                currentTableSort.asc = column === 'name' || column === 'leader';
+            }
+            renderTable();
+        }
+
+        // ==========================================
+        // SISTEMA DE CONTROL DE ACCESO & SEGURIDAD
+        // ==========================================
+        function initAuth() {
+            const saved = localStorage.getItem('quest_auth_role');
+            if (saved === 'MAESTRO') {
+                currentAuthRole = 'MAESTRO';
+            } else {
+                currentAuthRole = 'VIEWER';
+            }
+            updateAuthUI();
+        }
+
+        function updateAuthUI() {
+            const isMaster = currentAuthRole === 'MAESTRO';
+            const authContainer = document.getElementById('auth-controls');
+            const newCutBtn = document.getElementById('new-cut-btn');
+            const exportCsvBtn = document.getElementById('export-csv-btn');
+
+            if (!authContainer) return;
+
+            if (isMaster) {
+                authContainer.innerHTML = `
+                    <span class="bg-gradient-to-r from-amber-500/20 to-orange-500/20 text-amber-700 dark:text-amber-300 border border-amber-500/40 text-[11px] sm:text-xs font-black px-2.5 py-1.5 rounded-lg flex items-center gap-1 shadow-xs" title="Modo Maestro activo">
+                        👑 Santiago
+                    </span>
+                    <button onclick="logoutMaster()" class="bg-gray-200 hover:bg-red-500 hover:text-white dark:bg-navy-800 text-gray-700 dark:text-gray-300 text-xs font-bold px-2.5 py-1.5 rounded-lg transition flex items-center gap-1" title="Cerrar sesión de Maestro">
+                        <span>🚪</span>
+                        <span class="hidden sm:inline">Salir</span>
+                    </button>
+                `;
+                if (newCutBtn) {
+                    newCutBtn.classList.remove('hidden');
+                    newCutBtn.classList.add('flex');
+                }
+                if (exportCsvBtn) {
+                    exportCsvBtn.classList.remove('hidden');
+                    exportCsvBtn.classList.add('flex');
+                }
+            } else {
+                authContainer.innerHTML = `
+                    <span class="hidden sm:flex bg-gray-200/80 dark:bg-navy-800 text-gray-600 dark:text-gray-400 text-[11px] font-bold px-2.5 py-1.5 rounded-lg border border-gray-300 dark:border-navy-700 items-center gap-1.5" title="Acceso libre: Solo visualización">
+                        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                        👁️ Espectador
+                    </span>
+                    <button onclick="openLoginModal()" class="bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white text-xs font-bold px-3 py-1.5 rounded-lg shadow-sm flex items-center gap-1 transition">
+                        <span>🔑</span>
+                        <span>Acceso Maestro</span>
+                    </button>
+                `;
+                if (newCutBtn) {
+                    newCutBtn.classList.add('hidden');
+                    newCutBtn.classList.remove('flex');
+                }
+                if (exportCsvBtn) {
+                    exportCsvBtn.classList.add('hidden');
+                    exportCsvBtn.classList.remove('flex');
+                }
+            }
+        }
+
+        function openLoginModal() {
+            const modal = document.getElementById('login-modal');
+            if (!modal) return;
+            modal.classList.remove('hidden');
+            const errDiv = document.getElementById('login-error-msg');
+            if (errDiv) errDiv.classList.add('hidden');
+            const passInput = document.getElementById('login-password');
+            if (passInput) {
+                passInput.value = '';
+                setTimeout(() => passInput.focus(), 80);
+            }
+        }
+
+        function closeLoginModal() {
+            document.getElementById('login-modal')?.classList.add('hidden');
+        }
+
+        function handleMasterLogin(e) {
+            if (e) e.preventDefault();
+            const u = (document.getElementById('login-username')?.value || '').trim().toLowerCase();
+            const p = (document.getElementById('login-password')?.value || '').trim();
+            const errDiv = document.getElementById('login-error-msg');
+
+            if (u === 'santiago' && p === '0814') {
+                currentAuthRole = 'MAESTRO';
+                localStorage.setItem('quest_auth_role', 'MAESTRO');
+                closeLoginModal();
+                updateAuthUI();
+                showToast('👑 Bienvenido Maestro Santiago. Permisos de subida y descarga activos.');
+            } else {
+                if (errDiv) {
+                    errDiv.textContent = 'Usuario o contraseña incorrectos. Usuario: Santiago / Clave: 0814';
+                    errDiv.classList.remove('hidden');
+                }
+            }
+        }
+
+        function logoutMaster() {
+            currentAuthRole = 'VIEWER';
+            localStorage.removeItem('quest_auth_role');
+            updateAuthUI();
+            showToast('Sesión de Maestro cerrada. Ahora estás en Modo Espectador (Solo Visualización).');
+        }
+
+        function exportToCSV() {
+            // Protección de rol: Solo Maestro puede exportar y descargar reportes
+            if (currentAuthRole !== 'MAESTRO') {
+                showToast('⚠️ Función restringida: La descarga de reportes está reservada para el Maestro (Santiago).', 'error');
+                openLoginModal();
+                return;
+            }
+
+            const data = getCurrentData();
+            const isNational = currentZoneScope === 'all';
+            let csv = isNational 
+                ? 'Ranking,Zona,Comandante,Cumplimiento_Porcentaje,Estado\n'
+                : 'Ranking,PDV,Zona_Matriz,Lider_Tienda,Cumplimiento_Porcentaje,Estado\n';
+            
+            data.forEach((z) => {
+                if (isNational) {
+                    csv += `${z.rank},"${z.name}","${z.leader}",${z.compliance},"${z.status.label}"\n`;
+                } else {
+                    csv += `${z.rank},"${z.name}","${z.zoneName}","${z.leader}",${z.compliance},"${z.status.label}"\n`;
+                }
+            });
+
+            const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            const cutName = (cuts.find(c => c.id === currentCutId)?.name || 'Corte').replace(/\s+/g, '_');
+            const scopeName = isNational ? 'Nacional' : `Zona_${currentZoneScope}`;
+            link.download = `Reporte_${scopeName}_${cutName}.csv`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            showToast('Reporte exportado exitosamente a CSV');
+        }
+
+        // Modal Logic: Upload Cut (Restringido a Maestro)
+        function openModal() {
+            if (currentAuthRole !== 'MAESTRO') {
+                showToast('⚠️ Función restringida: Solo el Maestro (Santiago) puede subir reportes.', 'error');
+                openLoginModal();
+                return;
+            }
+            document.getElementById('upload-modal').classList.remove('hidden');
+            document.getElementById('cut-date').valueAsDate = new Date();
+            resetModal();
+        }
+
+        function closeModal() {
+            document.getElementById('upload-modal').classList.add('hidden');
+        }
+
+        function resetModal() {
+            document.getElementById('cut-name').value = '';
+            document.getElementById('file-upload').value = '';
+            document.getElementById('manual-data').value = '';
+            document.getElementById('preview-container').classList.add('hidden');
+            document.getElementById('save-cut-btn').disabled = true;
+            document.getElementById('save-cut-btn').classList.add('opacity-50', 'cursor-not-allowed');
+            previewDataCache = [];
+        }
+
+        function handleFileUpload(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, {type: 'array'});
+                    const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+                    const rows = XLSX.utils.sheet_to_json(firstSheet, {header: 1, defval: ''});
+                    
+                    if (!rows || rows.length === 0) {
+                        showToast('El archivo está vacío.', 'error');
+                        return;
+                    }
+
+                    // Detección inteligente de encabezados
+                    let headerRowIdx = -1;
+                    let nameColIdx = 0;
+                    let compColIdx = 1;
+                    let ventaColIdx = -1;
+                    let pptoColIdx = -1;
+
+                    for (let r = 0; r < Math.min(rows.length, 10); r++) {
+                        const row = rows[r];
+                        if (!Array.isArray(row)) continue;
+                        const rowStr = row.map(c => String(c).toLowerCase().trim());
+                        
+                        // Buscar columnas clave (tienda, pdv, co, etc.)
+                        const foundName = rowStr.findIndex(c => c.includes('tienda') || c.includes('pdv') || c.includes('zona') || c.includes('regional') || c.includes('nombre') || c.includes('almacen') || c === 'co' || c.includes('centro') || c.includes('codigo'));
+                        const foundComp = rowStr.findIndex(c => c.includes('cumpli') || c.includes('%') || c.includes('avance') || c.includes('ejecuc'));
+                        const foundVenta = rowStr.findIndex(c => c.includes('venta') || c.includes('real') || c.includes('factur'));
+                        const foundPpto = rowStr.findIndex(c => c.includes('ppto') || c.includes('presupuesto') || c.includes('meta'));
+
+                        if (foundName !== -1 && (foundComp !== -1 || (foundVenta !== -1 && foundPpto !== -1))) {
+                            headerRowIdx = r;
+                            nameColIdx = foundName;
+                            compColIdx = foundComp;
+                            ventaColIdx = foundVenta;
+                            pptoColIdx = foundPpto;
+                            break;
+                        }
+                    }
+
+                    let text = '';
+                    const startRow = headerRowIdx !== -1 ? headerRowIdx + 1 : 0;
+
+                    for (let r = startRow; r < rows.length; r++) {
+                        const row = rows[r];
+                        if (!row || row.length < 2) continue;
+
+                        const nameVal = String(row[nameColIdx] || '').trim();
+                        if (!nameVal) continue;
+
+                        let compVal = null;
+                        if (compColIdx !== -1 && row[compColIdx] !== undefined && row[compColIdx] !== '') {
+                            let raw = String(row[compColIdx]).replace(/[^0-9.,-]/g, '').replace(',', '.');
+                            let num = parseFloat(raw);
+                            if (!isNaN(num)) {
+                                // Si viene como decimal (ej: 1.05 o 0.95), convertir a porcentaje
+                                if (num > 0 && num <= 2.5 && String(row[compColIdx]).includes('.')) {
+                                    num = num * 100;
+                                }
+                                compVal = Math.round(num * 10) / 10;
+                            }
+                        } else if (ventaColIdx !== -1 && pptoColIdx !== -1) {
+                            let vta = parseFloat(String(row[ventaColIdx]).replace(/[^0-9.,-]/g, '').replace(',', '.'));
+                            let ppto = parseFloat(String(row[pptoColIdx]).replace(/[^0-9.,-]/g, '').replace(',', '.'));
+                            if (!isNaN(vta) && !isNaN(ppto) && ppto > 0) {
+                                compVal = Math.round((vta / ppto) * 1000) / 10;
+                            }
+                        } else {
+                            // Columna 1 por defecto
+                            let raw = String(row[1] || '').replace(/[^0-9.,-]/g, '').replace(',', '.');
+                            let num = parseFloat(raw);
+                            if (!isNaN(num)) {
+                                compVal = num > 0 && num <= 2.5 ? Math.round(num * 1000) / 10 : Math.round(num * 10) / 10;
+                            }
+                        }
+
+                        if (compVal !== null) {
+                            text += `${nameVal}, ${compVal}\n`;
+                        }
+                    }
+
+                    document.getElementById('manual-data').value = text;
+                    showToast('Archivo Excel leído correctamente. Haz clic en Previsualizar.');
+                } catch(err) {
+                    showToast('Error al procesar el archivo Excel. Revisa el formato.', 'error');
+                }
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        function processData() {
+            const text = document.getElementById('manual-data').value;
+            const lines = text.split('\n');
+            let parsed = [];
+
+            lines.forEach(line => {
+                const parts = line.split(/[,;\t]/);
+                if (parts.length >= 2) {
+                    const itemStr = parts[0].trim().toLowerCase();
+                    const compStr = parts[1].replace(/[^0-9.,-]/g, '').replace(',', '.');
+                    let comp = parseFloat(compStr);
+
+                    if (itemStr && !isNaN(comp)) {
+                        if (comp > 0 && comp <= 2.5 && parts[1].includes('.')) {
+                            comp = comp * 100;
+                        }
+                        comp = Math.round(comp * 10) / 10;
+
+                        // Búsqueda inteligente por nombre de zona o nombre de líder
+                        const matchedZone = SEED_ZONES.find(z => {
+                            const n = z.name.toLowerCase();
+                            const l = z.leader.toLowerCase();
+                            return itemStr === n || itemStr === l || itemStr.includes(n) || n.includes(itemStr) || itemStr.includes(l) || l.includes(itemStr);
+                        });
+
+                        // Búsqueda inteligente de PDV por CO, código (Q087, QST506, N10, etc.) o por nombre de tienda
+                        const matchedPDV = SEED_PDVS.find(p => {
+                            const n = p.name.toLowerCase();
+                            // Coincidencia exacta por CO (ej: "87", "N10", "506", "co 87", "co87")
+                            if (p.co) {
+                                const coStr = p.co.toLowerCase();
+                                if (itemStr === coStr || itemStr === 'co ' + coStr || itemStr === 'co' + coStr) return true;
+                            }
+                            // Coincidencia por código de tienda (ej: Q087, QST506, N10)
+                            const codeMatch = p.name.match(/^(Q(?:ST)?\d+|N\d+)/i);
+                            if (codeMatch) {
+                                const code = codeMatch[1].toLowerCase();
+                                if (itemStr === code || itemStr.startsWith(code + ' ') || itemStr.startsWith(code + '-') || itemStr.includes(code)) {
+                                    return true;
+                                }
+                            }
+                            return itemStr === n || itemStr.includes(n) || n.includes(itemStr);
+                        });
+
+                        if (matchedZone) {
+                            parsed.push({ type: 'zone', id: matchedZone.id, name: `${matchedZone.name} (${matchedZone.leader})`, compliance: comp });
+                        } else if (matchedPDV) {
+                            parsed.push({ type: 'pdv', id: matchedPDV.id, name: matchedPDV.name, zoneId: matchedPDV.zoneId, compliance: comp });
+                        }
+                    }
+                }
+            });
+
+            if (parsed.length > 0) {
+                const uniqueMap = new Map();
+                parsed.forEach(p => uniqueMap.set(p.type + '-' + p.id, p));
+                previewDataCache = Array.from(uniqueMap.values());
+
+                const tbody = document.getElementById('preview-body');
+                tbody.innerHTML = previewDataCache.map(p => `
+                    <tr>
+                        <td class="p-2 font-bold">${p.type === 'zone' ? 'Zona: ' : 'PDV: '}${p.name}</td>
+                        <td class="p-2 text-right font-mono font-bold text-amber-500">${p.compliance}%</td>
+                    </tr>
+                `).join('');
+                
+                document.getElementById('preview-count').textContent = `(${previewDataCache.length} ítems detectados)`;
+                document.getElementById('preview-container').classList.remove('hidden');
+                
+                const saveBtn = document.getElementById('save-cut-btn');
+                saveBtn.disabled = false;
+                saveBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                showToast(`${previewDataCache.length} ítems identificados.`);
+            } else {
+                showToast('No se detectaron zonas ni PDVs válidos en el texto.', 'error');
+            }
+        }
+
+        function saveNewCut() {
+            if (currentAuthRole !== 'MAESTRO') {
+                showToast('⚠️ No autorizado: Se requiere perfil de Maestro (Santiago) para guardar cortes.', 'error');
+                return;
+            }
+
+            const nameInput = document.getElementById('cut-name').value.trim();
+            const dateInput = document.getElementById('cut-date').value;
+            
+            if (!nameInput) {
+                showToast('Ingresa un nombre para el reporte', 'error');
+                return;
+            }
+
+            const zoneData = SEED_ZONES.map(z => {
+                const found = previewDataCache.find(p => p.type === 'zone' && p.id === z.id);
+                if (found) return { zoneId: z.id, compliance: found.compliance };
+
+                // Si no viene la zona directa, calcular el promedio a partir de sus PDVs
+                const pdvsOfZone = previewDataCache.filter(p => p.type === 'pdv' && p.zoneId === z.id);
+                if (pdvsOfZone.length > 0) {
+                    const sum = pdvsOfZone.reduce((acc, curr) => acc + curr.compliance, 0);
+                    return { zoneId: z.id, compliance: Math.round((sum / pdvsOfZone.length) * 10) / 10 };
+                }
+                return { zoneId: z.id, compliance: 0 };
+            });
+
+            const pdvDataMap = {};
+            SEED_PDVS.forEach(p => {
+                const found = previewDataCache.find(item => item.type === 'pdv' && item.id === p.id);
+                if (found) {
+                    pdvDataMap[p.id] = found.compliance;
+                }
+            });
+
+            const newCut = {
+                id: 'corte-' + Date.now(),
+                name: nameInput,
+                date: dateInput || new Date().toISOString().split('T')[0],
+                data: zoneData,
+                pdvData: Object.keys(pdvDataMap).length > 0 ? pdvDataMap : undefined
+            };
+
+            cuts.push(newCut);
+            localStorage.setItem('questCuts', JSON.stringify(cuts));
+            
+            currentCutId = newCut.id;
+            populateCutSelector();
+            document.getElementById('cut-selector').value = currentCutId;
+            
+            closeModal();
+            playJetSound();
+            renderAll();
+            showToast('🚀 Reporte guardado y desplegado en pista');
+        }
+
+        // Run on load
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
