@@ -1,6 +1,6 @@
 # ✈️ Conquista tu Zona en Aniversario - Escuadrón de Combate (Quest)
 
-Tablero gamificado interactivo estilo portaaviones / escuadrón de combate militar para el seguimiento de cumplimiento de metas retail de las 11 Zonas y 94 PDVs de Colombia.
+Tablero gamificado interactivo estilo portaaviones / escuadrón de combate militar para el seguimiento de cumplimiento de metas retail de las 11 Zonas y 181 PDVs (Quest, QST y Franquicias FQ) de Colombia.
 
 ## 🚀 Despliegue en Vercel
 

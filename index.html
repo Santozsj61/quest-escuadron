@@ -303,7 +303,7 @@
             <div class="flex items-center gap-2">
                 <span class="text-xs font-black uppercase tracking-wider text-gray-500 dark:text-gray-400">Escuadrón a Visualizar:</span>
                 <select id="zone-scope-selector" onchange="changeZoneScope(this.value)" class="bg-white dark:bg-navy-900 border border-gray-300 dark:border-navy-700 text-gray-900 dark:text-white text-xs sm:text-sm font-bold py-1.5 px-3 rounded-lg shadow-xs outline-none focus:ring-2 focus:ring-amber-500">
-                    <option value="all">🌐 Vista Nacional (11 Zonas / 94 PDVs)</option>
+                    <option value="all">🌐 Vista Nacional (11 Zonas / 181 PDVs)</option>
                     <!-- Zone options injected by JS -->
                 </select>
             </div>
@@ -662,128 +662,215 @@
             { id: 6, name: 'Eje Cafetero', leader: 'Andres Osorio', emoji: '☕' },
             { id: 7, name: 'Cali Norte y Centro', leader: 'Anyela Gonzalez', emoji: '💃' },
             { id: 8, name: 'Centro y Sabana', leader: 'Andrea Pérez', emoji: '🏙️' },
-            { id: 9, name: 'Medellín Metropolitano', leader: 'Julian Andres Marin', emoji: '⚡' },
+            { id: 9, name: 'Medellín Metropolitano', leader: 'Julian Marin', emoji: '⚡' },
             { id: 10, name: 'Huila y Caquetá', leader: 'Anderson Gelvez', emoji: '🌋' },
             { id: 11, name: 'Nariño', leader: 'Jose Salazar', emoji: '🗻' }
         ];
 
-        // Seed PDVs: Base oficial de 94 Puntos de Venta distribuidos en las 11 Zonas de Líderes
+        // Seed PDVs: Base oficial de 181 Puntos de Venta (Quest, QST y Franquicias FQ) en las 11 Zonas de Líderes
         const SEED_PDVS = [
-            // Alexander Lopez (Valle Centro - 11 PDVs)
-            { id: 1, co: '87', zoneId: 2, name: 'Q087 - Palmira - Centro', leader: 'Alexander Lopez' },
-            { id: 2, co: '73', zoneId: 2, name: 'Q073 - Yumbo - CC. Unico', leader: 'Alexander Lopez' },
-            { id: 3, co: '506', zoneId: 2, name: 'QST506 Palmira - Cc Llanogrande', leader: 'Alexander Lopez' },
-            { id: 4, co: '122', zoneId: 2, name: 'Q122 - Tulua - Centro', leader: 'Alexander Lopez' },
-            { id: 5, co: '14', zoneId: 2, name: 'Q014 - Tulua - CC Herradura', leader: 'Alexander Lopez' },
-            { id: 6, co: '146', zoneId: 2, name: 'Q146 - Palmira Centro 2', leader: 'Alexander Lopez' },
-            { id: 7, co: '153', zoneId: 2, name: 'Q153 Palmira - CC Llanogrande', leader: 'Alexander Lopez' },
-            { id: 8, co: '505', zoneId: 2, name: 'QST505- Tulua - La Herradura', leader: 'Alexander Lopez' },
-            { id: 9, co: '89', zoneId: 2, name: 'Q089 - Palmira CC Unicentro', leader: 'Alexander Lopez' },
-            { id: 10, co: '7', zoneId: 2, name: 'Q007 - Tulua - Centro', leader: 'Alexander Lopez' },
-            { id: 11, co: '88', zoneId: 2, name: 'Q088 - Palmira - CC Llanogrande', leader: 'Alexander Lopez' },
+            // Zona 1 - Carlos Correa (21 PDVs)
+            { id: 8, co: '23', zoneId: 1, name: 'Q023-Barranquilla-Cc Portal Del Prado', leader: 'Carlos Correa' },
+            { id: 14, co: '33', zoneId: 1, name: 'Q033-Cartagena-Cc Caribe Plaza', leader: 'Carlos Correa' },
+            { id: 15, co: '35', zoneId: 1, name: 'Q035-Barranquilla-Cc Unico', leader: 'Carlos Correa' },
+            { id: 25, co: '54', zoneId: 1, name: 'Q054-Sincelejo-Centro', leader: 'Carlos Correa' },
+            { id: 30, co: '62', zoneId: 1, name: 'Q062-Monteria-Cc Alameda', leader: 'Carlos Correa' },
+            { id: 31, co: '68', zoneId: 1, name: 'Q068-Cartagena-Cc Outlet Boca Grande', leader: 'Carlos Correa' },
+            { id: 38, co: '78', zoneId: 1, name: 'Q078-Soledad-Cc Gran Plaza', leader: 'Carlos Correa' },
+            { id: 41, co: '84', zoneId: 1, name: 'Q084-Santa Marta-Centro', leader: 'Carlos Correa' },
+            { id: 49, co: '92', zoneId: 1, name: 'Q092-Cartagena-Cc San Fernando', leader: 'Carlos Correa' },
+            { id: 54, co: '106', zoneId: 1, name: 'Q106-Soledad-Cc Nuetro Atlantico', leader: 'Carlos Correa' },
+            { id: 55, co: '107', zoneId: 1, name: 'Q107-Monteria-Cc Nuestro Monteria', leader: 'Carlos Correa' },
+            { id: 56, co: '109', zoneId: 1, name: 'Q109-Cartagena-Cc La Castellana', leader: 'Carlos Correa' },
+            { id: 62, co: '118', zoneId: 1, name: 'Q118-Sincelejo-Cc Guacari', leader: 'Carlos Correa' },
+            { id: 69, co: '128', zoneId: 1, name: 'Q128-Barranquilla-Cc Parque Alegra', leader: 'Carlos Correa' },
+            { id: 78, co: '140', zoneId: 1, name: 'Q140 Cartagena - Cc Mall Plaza', leader: 'Carlos Correa' },
+            { id: 88, co: '154', zoneId: 1, name: 'Q154 - Santa Marta - Cc Buenavista', leader: 'Carlos Correa' },
+            { id: 139, co: '77', zoneId: 1, name: 'Fq77 - Cerete - Centro', leader: 'Carlos Correa' },
+            { id: 142, co: '81', zoneId: 1, name: 'Fq81-Santo Tomas', leader: 'Carlos Correa' },
+            { id: 146, co: '86', zoneId: 1, name: 'Fq86 - Magangue Bolivar', leader: 'Carlos Correa' },
+            { id: 147, co: '88', zoneId: 1, name: 'Fq88 - Turbaco Bolivar', leader: 'Carlos Correa' },
+            { id: 160, co: '101', zoneId: 1, name: 'Fq101 - Cartagena - Bolivar', leader: 'Carlos Correa' },
 
-            // Anderson Gelvez (Huila y Caquetá - 6 PDVs)
-            { id: 12, co: '71', zoneId: 10, name: 'Q071 - Neiva - Centro', leader: 'Anderson Gelvez' },
-            { id: 13, co: '145', zoneId: 10, name: 'Q145 Neiva - CC Unicentro', leader: 'Anderson Gelvez' },
-            { id: 14, co: '53', zoneId: 10, name: 'Q053 - Neiva - CC San Pedro Plaza', leader: 'Anderson Gelvez' },
-            { id: 15, co: '56', zoneId: 10, name: 'Q056 - Pitalito - CC San Antonio', leader: 'Anderson Gelvez' },
-            { id: 16, co: '77', zoneId: 10, name: 'Q077 - Florencia - CC Gran Plaza', leader: 'Anderson Gelvez' },
-            { id: 17, co: '117', zoneId: 10, name: 'Q117 - Neiva - CC Unico', leader: 'Anderson Gelvez' },
+            // Zona 2 - Alexander Lopez (24 PDVs)
+            { id: 2, co: '7', zoneId: 2, name: 'Q007-Tulua-Centro', leader: 'Alexander Lopez' },
+            { id: 4, co: '14', zoneId: 2, name: 'Q014-Tulua-Cc Herradura', leader: 'Alexander Lopez' },
+            { id: 34, co: '73', zoneId: 2, name: 'Q073-Yumbo-Cc Unico', leader: 'Alexander Lopez' },
+            { id: 44, co: '87', zoneId: 2, name: 'Q087-Palmira-Centro', leader: 'Alexander Lopez' },
+            { id: 45, co: '88', zoneId: 2, name: 'Q088-Palmira-Cc Llanogrande', leader: 'Alexander Lopez' },
+            { id: 46, co: '89', zoneId: 2, name: 'Q089-Palmira-Cc Unicentro', leader: 'Alexander Lopez' },
+            { id: 64, co: '122', zoneId: 2, name: 'Q122-Tulua-Centro 2', leader: 'Alexander Lopez' },
+            { id: 82, co: '146', zoneId: 2, name: 'Q146 Palmira - Centro 2', leader: 'Alexander Lopez' },
+            { id: 87, co: '153', zoneId: 2, name: 'Q153 - Palmira - Cc Llanogrande', leader: 'Alexander Lopez' },
+            { id: 95, co: '12', zoneId: 2, name: 'Fq12-Buga Centro', leader: 'Alexander Lopez' },
+            { id: 97, co: '14', zoneId: 2, name: 'Fq14-Buga Plaza', leader: 'Alexander Lopez' },
+            { id: 98, co: '17', zoneId: 2, name: 'Fq17-Buenaventura', leader: 'Alexander Lopez' },
+            { id: 109, co: '45', zoneId: 2, name: 'Fq45-La Union Valle', leader: 'Alexander Lopez' },
+            { id: 114, co: '50', zoneId: 2, name: 'Fq50-Roldanillo', leader: 'Alexander Lopez' },
+            { id: 117, co: '54', zoneId: 2, name: 'Fq54-Dagua-Valle Del Cauca', leader: 'Alexander Lopez' },
+            { id: 119, co: '56', zoneId: 2, name: 'Fq56-Darien- Valle', leader: 'Alexander Lopez' },
+            { id: 120, co: '57', zoneId: 2, name: 'Fq57-El Cerrito - Valle', leader: 'Alexander Lopez' },
+            { id: 124, co: '61', zoneId: 2, name: 'Fq61-Caicedonia - Valle Del Cauca', leader: 'Alexander Lopez' },
+            { id: 125, co: '62', zoneId: 2, name: 'Fq62-Zarzal - Valle Del Cauca', leader: 'Alexander Lopez' },
+            { id: 165, co: '106', zoneId: 2, name: 'Fq106 - Sevilla - Valle Del Cauca', leader: 'Alexander Lopez' },
+            { id: 171, co: '505', zoneId: 2, name: 'Qst505 - Tulua - Cc La Herradura', leader: 'Alexander Lopez' },
+            { id: 172, co: '506', zoneId: 2, name: 'Qst506 - Palmira - Cc Llanogrande', leader: 'Alexander Lopez' },
+            { id: 177, co: '111', zoneId: 2, name: 'FQ111 TULUA CC SUPER CENTRO LA 14', leader: 'Alexander Lopez' },
+            { id: 178, co: '112', zoneId: 2, name: 'FQ112 YUMBO CENTRO', leader: 'Alexander Lopez' },
 
-            // Andrea Pérez (Centro y Sabana - 7 PDVs)
-            { id: 18, co: '85', zoneId: 8, name: 'Q085 - Ibagué - CC La Estación', leader: 'Andrea Pérez' },
-            { id: 19, co: '69', zoneId: 8, name: 'Q069 - Ibague - Centro', leader: 'Andrea Pérez' },
-            { id: 20, co: '124', zoneId: 8, name: 'Q124 -  Bogota - CC Nuestro Bogota', leader: 'Andrea Pérez' },
-            { id: 21, co: '86', zoneId: 8, name: 'Q086 - Villavicencio - CC Viva', leader: 'Andrea Pérez' },
-            { id: 22, co: '155', zoneId: 8, name: 'Q155 Bogota - CC Outlet las Ameri', leader: 'Andrea Pérez' },
-            { id: 23, co: '74', zoneId: 8, name: 'Q074 - Villavicencio - CC Unico', leader: 'Andrea Pérez' },
-            { id: 24, co: '129', zoneId: 8, name: 'Q129 - Bogota - CC Las Americas', leader: 'Andrea Pérez' },
+            // Zona 3 - Yoryani Valderrama (15 PDVs)
+            { id: 5, co: '16', zoneId: 3, name: 'Q016-Cali-Cc Palmetto', leader: 'Yoryani Valderrama' },
+            { id: 6, co: '18', zoneId: 3, name: 'Q018-Cali-Cc Jardin Plaza', leader: 'Yoryani Valderrama' },
+            { id: 11, co: '29', zoneId: 3, name: 'Q029-Cali-Cc Unico Torre2', leader: 'Yoryani Valderrama' },
+            { id: 12, co: '30', zoneId: 3, name: 'Q030-Popayan-Cc Campanario', leader: 'Yoryani Valderrama' },
+            { id: 17, co: '39', zoneId: 3, name: 'Q039-Cali-Cc Unico Torre 1', leader: 'Yoryani Valderrama' },
+            { id: 18, co: '40', zoneId: 3, name: 'Q040-Cali-Cc Unicentro', leader: 'Yoryani Valderrama' },
+            { id: 20, co: '44', zoneId: 3, name: 'Q044-Popayan-Centro', leader: 'Yoryani Valderrama' },
+            { id: 72, co: '133', zoneId: 3, name: 'Q133-Popayan-Cc Terra Plaza', leader: 'Yoryani Valderrama' },
+            { id: 80, co: '144', zoneId: 3, name: 'Q144 Popayan - Centro 2', leader: 'Yoryani Valderrama' },
+            { id: 92, co: '32', zoneId: 3, name: 'Fq032-Santander Quilichao', leader: 'Yoryani Valderrama' },
+            { id: 100, co: '16', zoneId: 3, name: 'Fq16-Jamundi', leader: 'Yoryani Valderrama' },
+            { id: 153, co: '94', zoneId: 3, name: 'Fq94 - Puerto Tejada', leader: 'Yoryani Valderrama' },
+            { id: 163, co: '104', zoneId: 3, name: 'Fq104 - Piendamo - Cauca', leader: 'Yoryani Valderrama' },
+            { id: 168, co: '502', zoneId: 3, name: 'Qst502 Cali - Cc Unico 2', leader: 'Yoryani Valderrama' },
+            { id: 170, co: '504', zoneId: 3, name: 'Qst504 Cali - Cc Jardin Plaza', leader: 'Yoryani Valderrama' },
 
-            // Andres Osorio (Eje Cafetero - 7 PDVs)
-            { id: 25, co: '116', zoneId: 6, name: 'Q116 - Cartago - CC Nuestro Cartago', leader: 'Andres Osorio' },
-            { id: 26, co: '91', zoneId: 6, name: 'Q091 - Armenia - Centro', leader: 'Andres Osorio' },
-            { id: 27, co: '58', zoneId: 6, name: 'Q058 - Pereira - CC Victoria Plaza', leader: 'Andres Osorio' },
-            { id: 28, co: '139', zoneId: 6, name: 'Q139 Armenia -', leader: 'Andres Osorio' },
-            { id: 29, co: '97', zoneId: 6, name: 'Q097 Cartago - Centro', leader: 'Andres Osorio' },
-            { id: 30, co: '49', zoneId: 6, name: 'Q049 - Dosquebradas - CC Unico', leader: 'Andres Osorio' },
-            { id: 31, co: '138', zoneId: 6, name: 'Q138 Manizales -', leader: 'Andres Osorio' },
+            // Zona 4 - Andrea Bañol (20 PDVs)
+            { id: 57, co: '112', zoneId: 4, name: 'Q112-Medellin-Cc Molinos', leader: 'Andrea Bañol' },
+            { id: 58, co: '113', zoneId: 4, name: 'Q113-Envigado-Cc Viva', leader: 'Andrea Bañol' },
+            { id: 66, co: '125', zoneId: 4, name: 'Q125-Bello-Cc Plaza Fabricato', leader: 'Andrea Bañol' },
+            { id: 68, co: '127', zoneId: 4, name: 'Q127-Sabaneta-Cc Mayorca', leader: 'Andrea Bañol' },
+            { id: 79, co: '143', zoneId: 4, name: 'Q143 Medellín - Cc Mayorca Etapa 1', leader: 'Andrea Bañol' },
+            { id: 84, co: '148', zoneId: 4, name: 'Q148 Medellín - Carabobo Centro', leader: 'Andrea Bañol' },
+            { id: 85, co: '149', zoneId: 4, name: 'Q149 Medellín - Centro', leader: 'Andrea Bañol' },
+            { id: 90, co: '156', zoneId: 4, name: 'Q156 - Medellin - Cc Santa Fe', leader: 'Andrea Bañol' },
+            { id: 96, co: '13', zoneId: 4, name: 'Fq13-Quibdo', leader: 'Andrea Bañol' },
+            { id: 107, co: '43', zoneId: 4, name: 'Fq43-Arauca', leader: 'Andrea Bañol' },
+            { id: 116, co: '52', zoneId: 4, name: 'Fq52-Barbosa-Santander', leader: 'Andrea Bañol' },
+            { id: 118, co: '55', zoneId: 4, name: 'Fq55-Tame - Arauca', leader: 'Andrea Bañol' },
+            { id: 127, co: '64', zoneId: 4, name: 'Fq64-Puerto Boyaca-Boyaca', leader: 'Andrea Bañol' },
+            { id: 130, co: '68', zoneId: 4, name: 'Fq68-La Dorada-Caldas', leader: 'Andrea Bañol' },
+            { id: 131, co: '69', zoneId: 4, name: 'Fq69-Saravena-Arauca', leader: 'Andrea Bañol' },
+            { id: 138, co: '76', zoneId: 4, name: 'Fq76 - Malaga Santander', leader: 'Andrea Bañol' },
+            { id: 145, co: '85', zoneId: 4, name: 'Fq85 - Istmina Choco', leader: 'Andrea Bañol' },
+            { id: 156, co: '97', zoneId: 4, name: 'Fq97 - San Gil - Norte De Santander', leader: 'Andrea Bañol' },
+            { id: 161, co: '102', zoneId: 4, name: 'Fq102 - Antioquia - Apartado', leader: 'Andrea Bañol' },
+            { id: 164, co: '105', zoneId: 4, name: 'Fq105 - Monteria - Cordoba', leader: 'Andrea Bañol' },
 
-            // Anyela Gonzalez (Cali Norte y Centro - 7 PDVs)
-            { id: 32, co: '31', zoneId: 7, name: 'Q031 - Cali - Centro 1', leader: 'Anyela Gonzalez' },
-            { id: 33, co: '21', zoneId: 7, name: 'Q021 - Cali - CC Chipichape', leader: 'Anyela Gonzalez' },
-            { id: 34, co: '41', zoneId: 7, name: 'Q041 - Cali - CC Calima', leader: 'Anyela Gonzalez' },
-            { id: 35, co: '120', zoneId: 7, name: 'Q120 - Cali - Plaza Q', leader: 'Anyela Gonzalez' },
-            { id: 36, co: '147', zoneId: 7, name: 'Q147 Cali Mall Plaza', leader: 'Anyela Gonzalez' },
-            { id: 37, co: '8', zoneId: 7, name: 'Q008 - Cali - Alameda', leader: 'Anyela Gonzalez' },
-            { id: 38, co: '3', zoneId: 7, name: 'Q003 - Cali - Calle 23', leader: 'Anyela Gonzalez' },
+            // Zona 5 - Fabian Sanchez (19 PDVs)
+            { id: 9, co: '27', zoneId: 5, name: 'Q027-Cucuta-Cc Ventura', leader: 'Fabian Sanchez' },
+            { id: 22, co: '46', zoneId: 5, name: 'Q046-Cucuta-Centro', leader: 'Fabian Sanchez' },
+            { id: 39, co: '80', zoneId: 5, name: 'Q080-Valledupar-Cc Mayales', leader: 'Fabian Sanchez' },
+            { id: 52, co: '102', zoneId: 5, name: 'Q102-Valledupar-Cc Guatapuri', leader: 'Fabian Sanchez' },
+            { id: 59, co: '115', zoneId: 5, name: 'Q115-Cucuta-Centro 2', leader: 'Fabian Sanchez' },
+            { id: 71, co: '131', zoneId: 5, name: 'Q131-Cucuta-Cc. Jardin Plaza', leader: 'Fabian Sanchez' },
+            { id: 91, co: '157', zoneId: 5, name: 'Q157 - Riohacha - CC Viva Wajira', leader: 'Fabian Sanchez' },
+            { id: 94, co: '8', zoneId: 5, name: 'Fq08-Cucuta', leader: 'Fabian Sanchez' },
+            { id: 102, co: '34', zoneId: 5, name: 'Fq34-Ocaña', leader: 'Fabian Sanchez' },
+            { id: 105, co: '41', zoneId: 5, name: 'Fq41-Aguachica', leader: 'Fabian Sanchez' },
+            { id: 106, co: '42', zoneId: 5, name: 'Fq42-Pamplona', leader: 'Fabian Sanchez' },
+            { id: 132, co: '70', zoneId: 5, name: 'Fq70-Villa Del Rosario', leader: 'Fabian Sanchez' },
+            { id: 134, co: '72', zoneId: 5, name: 'Fq72-Los Patios-Cucuta', leader: 'Fabian Sanchez' },
+            { id: 140, co: '78', zoneId: 5, name: 'Fq78 - Codazzi', leader: 'Fabian Sanchez' },
+            { id: 174, co: '509', zoneId: 5, name: 'Qst509 - Cucuta - Cc Jardin Plaza', leader: 'Fabian Sanchez' },
+            { id: 175, co: '108', zoneId: 5, name: 'Fq108- San Alberto', leader: 'Fabian Sanchez' },
+            { id: 179, co: '113', zoneId: 5, name: 'FQ113 BARRANCABERMEJA', leader: 'Fabian Sanchez' },
+            { id: 180, co: '114', zoneId: 5, name: 'FQ114 BUCARAMANGA CC CACIQUE', leader: 'Fabian Sanchez' },
+            { id: 181, co: '115', zoneId: 5, name: 'FQ115 BUCARAMANGA CC UNICO', leader: 'Fabian Sanchez' },
 
-            // Carlos Correa (Costa Caribe - 16 PDVs)
-            { id: 39, co: '78', zoneId: 1, name: 'Q078 -  Soledad - CC - Gran Plaza', leader: 'Carlos Correa' },
-            { id: 40, co: '109', zoneId: 1, name: 'Q109 - Cartagena - CC La Castellana', leader: 'Carlos Correa' },
-            { id: 41, co: '107', zoneId: 1, name: 'Q107 - Monteria - CC Nuestra Monteria', leader: 'Carlos Correa' },
-            { id: 42, co: '140', zoneId: 1, name: 'Q140 Cartagena - CC Mall Plaz', leader: 'Carlos Correa' },
-            { id: 43, co: '106', zoneId: 1, name: 'Q106 - Soledad - CC Nuestro Atlantico', leader: 'Carlos Correa' },
-            { id: 44, co: '68', zoneId: 1, name: 'Q068 - Cartagena - CC. Outlet del Bosque', leader: 'Carlos Correa' },
-            { id: 45, co: '118', zoneId: 1, name: 'Q118 - Sincelejo - CC Guacari', leader: 'Carlos Correa' },
-            { id: 46, co: '23', zoneId: 1, name: 'Q023 - Barranquilla - CC Portal', leader: 'Carlos Correa' },
-            { id: 47, co: '84', zoneId: 1, name: 'Q084 - Santa Marta - Centro', leader: 'Carlos Correa' },
-            { id: 48, co: '154', zoneId: 1, name: 'Q154 - Santa Marta CC Buenavista', leader: 'Carlos Correa' },
-            { id: 49, co: '33', zoneId: 1, name: 'Q033 - Cartagena - CC Caribe Plaza', leader: 'Carlos Correa' },
-            { id: 50, co: '54', zoneId: 1, name: 'Q054 - Sincelejo - Centro', leader: 'Carlos Correa' },
-            { id: 51, co: '62', zoneId: 1, name: 'Q062 - Monteria - CC Alamedas', leader: 'Carlos Correa' },
-            { id: 52, co: '128', zoneId: 1, name: 'Q128 - Barranquilla - CC Alegra', leader: 'Carlos Correa' },
-            { id: 53, co: '92', zoneId: 1, name: 'Q092 - Cartagena - CC San Fernando', leader: 'Carlos Correa' },
-            { id: 54, co: '35', zoneId: 1, name: 'Q035 - Barranquilla - CC Unico', leader: 'Carlos Correa' },
+            // Zona 6 - Andres Osorio (14 PDVs)
+            { id: 16, co: '38', zoneId: 6, name: 'Q038-Pereira-Cc Unicentro', leader: 'Andres Osorio' },
+            { id: 23, co: '49', zoneId: 6, name: 'Q049-Dosquebradas-Cc Unico', leader: 'Andres Osorio' },
+            { id: 28, co: '58', zoneId: 6, name: 'Q058-Pereira-Cc Victoria Plaza', leader: 'Andres Osorio' },
+            { id: 29, co: '61', zoneId: 6, name: 'Q061-Armenia-Cc Unicentro', leader: 'Andres Osorio' },
+            { id: 48, co: '91', zoneId: 6, name: 'Q091-Armenia-Centro', leader: 'Andres Osorio' },
+            { id: 51, co: '97', zoneId: 6, name: 'Q097-Cartago-Centro', leader: 'Andres Osorio' },
+            { id: 53, co: '105', zoneId: 6, name: 'Q105-Pereira-Centro', leader: 'Andres Osorio' },
+            { id: 60, co: '116', zoneId: 6, name: 'Q116-Cartago-Cc Nuestro Cartago', leader: 'Andres Osorio' },
+            { id: 76, co: '138', zoneId: 6, name: 'Q138-Manizales - Cc Fundadores', leader: 'Andres Osorio' },
+            { id: 77, co: '139', zoneId: 6, name: 'Q139-Armenia-Centro 2', leader: 'Andres Osorio' },
+            { id: 122, co: '59', zoneId: 6, name: 'Fq59-Chinchina-Caldas', leader: 'Andres Osorio' },
+            { id: 123, co: '60', zoneId: 6, name: 'Fq60-Santa Rosa - Risaralda', leader: 'Andres Osorio' },
+            { id: 128, co: '66', zoneId: 6, name: 'Fq66-Calarca-Quindio', leader: 'Andres Osorio' },
+            { id: 144, co: '84', zoneId: 6, name: 'Fq84 - La Virginia Risaralda', leader: 'Andres Osorio' },
 
-            // Fabian Sanchez (Santanderes y Cesar - 8 PDVs)
-            { id: 55, co: '27', zoneId: 5, name: 'Q027 - Cucuta - CC Ventura Plaza', leader: 'Fabian Sanchez' },
-            { id: 56, co: '157', zoneId: 5, name: 'Q157 - Riohacha - CC Viva Wajira', leader: 'Fabian Sanchez' },
-            { id: 57, co: '115', zoneId: 5, name: 'Q115 - Cucuta - Centro', leader: 'Fabian Sanchez' },
-            { id: 58, co: '509', zoneId: 5, name: 'QST509 Cucuta - Cc Jardin Plaza', leader: 'Fabian Sanchez' },
-            { id: 59, co: '131', zoneId: 5, name: 'Q131 Cucuta CC Jardin Plaza', leader: 'Fabian Sanchez' },
-            { id: 60, co: '80', zoneId: 5, name: 'Q080 - Valledupar  - CC Mayales', leader: 'Fabian Sanchez' },
-            { id: 61, co: '46', zoneId: 5, name: 'Q046 - Cucuta - Centro 2', leader: 'Fabian Sanchez' },
-            { id: 62, co: '102', zoneId: 5, name: 'Q102 Guatapuri Valledupar', leader: 'Fabian Sanchez' },
+            // Zona 7 - Anyela Gonzalez (13 PDVs)
+            { id: 1, co: '3', zoneId: 7, name: 'Q003-Cali-Calle 23', leader: 'Anyela Gonzalez' },
+            { id: 3, co: '8', zoneId: 7, name: 'Q008-Cali-Alameda', leader: 'Anyela Gonzalez' },
+            { id: 7, co: '21', zoneId: 7, name: 'Q021-Cali-Cc Chipichape', leader: 'Anyela Gonzalez' },
+            { id: 10, co: '28', zoneId: 7, name: 'Q028-Cali-Centro Calle 13', leader: 'Anyela Gonzalez' },
+            { id: 13, co: '31', zoneId: 7, name: 'Q031-Cali-Centro Calle 15', leader: 'Anyela Gonzalez' },
+            { id: 19, co: '41', zoneId: 7, name: 'Q041-Cali-Cc Calima', leader: 'Anyela Gonzalez' },
+            { id: 63, co: '120', zoneId: 7, name: 'Q120-Cali-Plaza Q', leader: 'Anyela Gonzalez' },
+            { id: 73, co: '134', zoneId: 7, name: 'Q134-Cali-Cc Cosmocentro', leader: 'Anyela Gonzalez' },
+            { id: 83, co: '147', zoneId: 7, name: 'Q147 Cali - Cali Mall Plaza', leader: 'Anyela Gonzalez' },
+            { id: 93, co: '6', zoneId: 7, name: 'Fq06-Florida (Valle)', leader: 'Anyela Gonzalez' },
+            { id: 113, co: '49', zoneId: 7, name: 'Fq49-Calendaria', leader: 'Anyela Gonzalez' },
+            { id: 126, co: '63', zoneId: 7, name: 'Fq63-Pradera-Valle Del Cauca', leader: 'Anyela Gonzalez' },
+            { id: 167, co: '501', zoneId: 7, name: 'Qst501 Cali - Plaza Q', leader: 'Anyela Gonzalez' },
 
-            // Jose Salazar (Nariño - 5 PDVs)
-            { id: 63, co: '135', zoneId: 11, name: 'Q135 Pasto - Centro', leader: 'Jose Salazar' },
-            { id: 64, co: '45', zoneId: 11, name: 'Q045 - Pasto - CC Unicentro', leader: 'Jose Salazar' },
-            { id: 65, co: '126', zoneId: 11, name: 'Q126 - Ipiales - Centro', leader: 'Jose Salazar' },
-            { id: 66, co: '57', zoneId: 11, name: 'Q057 - Pasto - CC Unico', leader: 'Jose Salazar' },
-            { id: 67, co: '90', zoneId: 11, name: 'Q090 - Ipiales - CC Gran Plaza', leader: 'Jose Salazar' },
+            // Zona 8 - Andrea Pérez (18 PDVs)
+            { id: 32, co: '69', zoneId: 8, name: 'Q069-Ibague-Centro', leader: 'Andrea Pérez' },
+            { id: 35, co: '74', zoneId: 8, name: 'Q074-Villavicencio-Cc Unico', leader: 'Andrea Pérez' },
+            { id: 42, co: '85', zoneId: 8, name: 'Q085 - Ibague - Cc La Estacion', leader: 'Andrea Pérez' },
+            { id: 43, co: '86', zoneId: 8, name: 'Q086-Villavicencio-Cc Viva', leader: 'Andrea Pérez' },
+            { id: 65, co: '124', zoneId: 8, name: 'Q124-Bogota-Cc Nuestro Bogota', leader: 'Andrea Pérez' },
+            { id: 70, co: '129', zoneId: 8, name: 'Q129-Bogota-Plaza De Las Americas', leader: 'Andrea Pérez' },
+            { id: 89, co: '155', zoneId: 8, name: 'Q155 - Bogota - Cc Outlet Las Americas', leader: 'Andrea Pérez' },
+            { id: 99, co: '21', zoneId: 8, name: 'Fq21-Granada Meta', leader: 'Andrea Pérez' },
+            { id: 103, co: '36', zoneId: 8, name: 'Fq36-Acacias', leader: 'Andrea Pérez' },
+            { id: 110, co: '46', zoneId: 8, name: 'Fq46-San Jose Del Guaviare', leader: 'Andrea Pérez' },
+            { id: 121, co: '58', zoneId: 8, name: 'Fq58-Villavicencio-Meta', leader: 'Andrea Pérez' },
+            { id: 137, co: '75', zoneId: 8, name: 'Fq75-Fusagasuga-Centro', leader: 'Andrea Pérez' },
+            { id: 143, co: '83', zoneId: 8, name: 'Fq83 - Zipaquirá Cundinamarca', leader: 'Andrea Pérez' },
+            { id: 148, co: '89', zoneId: 8, name: 'Fq89 - El Espinal Tolima', leader: 'Andrea Pérez' },
+            { id: 152, co: '93', zoneId: 8, name: 'Fq93 - Sogamoso Boyaca', leader: 'Andrea Pérez' },
+            { id: 154, co: '95', zoneId: 8, name: 'Fq95 - Melgar - Tolima', leader: 'Andrea Pérez' },
+            { id: 158, co: '99', zoneId: 8, name: 'Fq99 - Puerto Gaitan - Meta', leader: 'Andrea Pérez' },
+            { id: 159, co: '100', zoneId: 8, name: 'Fq100 - Puerto Carreño - Vichada', leader: 'Andrea Pérez' },
 
-            // Yoryani Valderrama (Cali Sur y Popayán - 11 PDVs)
-            { id: 68, co: '502', zoneId: 3, name: 'QST502 - Cali - Cc Unico 2', leader: 'Yoryani Valderrama' },
-            { id: 69, co: '40', zoneId: 3, name: 'Q040 - Cali - CC Unicentro 2', leader: 'Yoryani Valderrama' },
-            { id: 70, co: '39', zoneId: 3, name: 'Q039 - Cali - CC Unico 2', leader: 'Yoryani Valderrama' },
-            { id: 71, co: '44', zoneId: 3, name: 'Q044 - Popayan - Centro', leader: 'Yoryani Valderrama' },
-            { id: 72, co: '16', zoneId: 3, name: 'Q016 - Cali - CC Palmetto', leader: 'Yoryani Valderrama' },
-            { id: 73, co: '29', zoneId: 3, name: 'Q029 - Cali - CC Unico 1', leader: 'Yoryani Valderrama' },
-            { id: 74, co: '133', zoneId: 3, name: 'Q133 Popayan CC Terra Plaza', leader: 'Yoryani Valderrama' },
-            { id: 75, co: '144', zoneId: 3, name: 'Q144 Popayan Centro 2', leader: 'Yoryani Valderrama' },
-            { id: 76, co: '504', zoneId: 3, name: 'QST504 - Cali - Cc Jardin Plaza', leader: 'Yoryani Valderrama' },
-            { id: 77, co: '30', zoneId: 3, name: 'Q030 - Popayan - CC Campanario', leader: 'Yoryani Valderrama' },
-            { id: 78, co: '18', zoneId: 3, name: 'Q018 - Cali - Jardin Plaza', leader: 'Yoryani Valderrama' },
+            // Zona 9 - Julian Marin (10 PDVs)
+            { id: 36, co: '76', zoneId: 9, name: 'Q076-Medellin-Cc Florida', leader: 'Julian Marin' },
+            { id: 40, co: '83', zoneId: 9, name: 'Q083-Yopal-Cc Unicentro', leader: 'Julian Marin' },
+            { id: 50, co: '94', zoneId: 9, name: 'Q094-Medellin-Cc Aventura', leader: 'Julian Marin' },
+            { id: 75, co: '136', zoneId: 9, name: 'Q136-Yopal-Centro', leader: 'Julian Marin' },
+            { id: 86, co: '152', zoneId: 9, name: 'Q152 - Rionegro - Cc San Nicolas', leader: 'Julian Marin' },
+            { id: 115, co: '51', zoneId: 9, name: 'Fq51-Villanueva- Casanare', leader: 'Julian Marin' },
+            { id: 133, co: '71', zoneId: 9, name: 'Fq71-Paz De Ariporo', leader: 'Julian Marin' },
+            { id: 149, co: '90', zoneId: 9, name: 'Fq90 - Tauramena Casanare', leader: 'Julian Marin' },
+            { id: 169, co: '503', zoneId: 9, name: 'Qst503 Medellin - Cc Florida', leader: 'Julian Marin' },
+            { id: 173, co: '508', zoneId: 9, name: 'Qst508 - Medellin - Cc Mayorca', leader: 'Julian Marin' },
 
-            // Andrea Bañol (Antioquia y Casanare - 10 PDVs)
-            { id: 79, co: '136', zoneId: 4, name: 'Q136 Yopal Centro', leader: 'Andrea Bañol' },
-            { id: 80, co: '83', zoneId: 4, name: 'Q083 -  Yopal - CC Unicentro', leader: 'Andrea Bañol' },
-            { id: 81, co: '112', zoneId: 4, name: 'Q112 - Medellin - CC Molinos', leader: 'Andrea Bañol' },
-            { id: 82, co: '113', zoneId: 4, name: 'Q113 - Envigado - CC Viva', leader: 'Andrea Bañol' },
-            { id: 83, co: '143', zoneId: 4, name: 'Q143 Medellin CC Mayorca', leader: 'Andrea Bañol' },
-            { id: 84, co: '148', zoneId: 4, name: 'Q148 - Carabobo Centro', leader: 'Andrea Bañol' },
-            { id: 85, co: '149', zoneId: 4, name: 'Q149 - Medellín - Centro', leader: 'Andrea Bañol' },
-            { id: 86, co: '156', zoneId: 4, name: 'Q156 - Medellin - CC Santa Fe', leader: 'Andrea Bañol' },
-            { id: 87, co: '508', zoneId: 4, name: 'QST508 Medellin - Cc Mayorca', leader: 'Andrea Bañol' },
-            { id: 88, co: '127', zoneId: 4, name: 'Q127 - Sabaneta CC Mayorca', leader: 'Andrea Bañol' },
+            // Zona 10 - Anderson Gelvez (17 PDVs)
+            { id: 24, co: '53', zoneId: 10, name: 'Q053-Neiva-Cc San Pedro Plaza', leader: 'Anderson Gelvez' },
+            { id: 26, co: '56', zoneId: 10, name: 'Q056-Pitalito-Cc San Antonio', leader: 'Anderson Gelvez' },
+            { id: 33, co: '71', zoneId: 10, name: 'Q071-Neiva-Centro', leader: 'Anderson Gelvez' },
+            { id: 37, co: '77', zoneId: 10, name: 'Q077-Florencia-Cc Gran Plaza', leader: 'Anderson Gelvez' },
+            { id: 61, co: '117', zoneId: 10, name: 'Q117-Neiva-Cc Unico', leader: 'Anderson Gelvez' },
+            { id: 81, co: '145', zoneId: 10, name: 'Q145 Neiva - Cc Unicentro', leader: 'Anderson Gelvez' },
+            { id: 108, co: '44', zoneId: 10, name: 'Fq44-Puerto Asis Putumayo', leader: 'Anderson Gelvez' },
+            { id: 111, co: '47', zoneId: 10, name: 'Fq47 Mocoa Putumayo', leader: 'Anderson Gelvez' },
+            { id: 112, co: '48', zoneId: 10, name: 'Fq48-Garzon Huila', leader: 'Anderson Gelvez' },
+            { id: 129, co: '67', zoneId: 10, name: 'Fq67-Leticia-Amazonas', leader: 'Anderson Gelvez' },
+            { id: 135, co: '73', zoneId: 10, name: 'Fq73-Florencia-Caqueta', leader: 'Anderson Gelvez' },
+            { id: 136, co: '74', zoneId: 10, name: 'Fq74-Cc Santa Lucia Neiva', leader: 'Anderson Gelvez' },
+            { id: 141, co: '80', zoneId: 10, name: 'Fq80 - Pitalito Huila', leader: 'Anderson Gelvez' },
+            { id: 157, co: '98', zoneId: 10, name: 'Fq98 - La Hormiga - Putumayo', leader: 'Anderson Gelvez' },
+            { id: 162, co: '103', zoneId: 10, name: 'Fq103 - LaPLata Huila', leader: 'Anderson Gelvez' },
+            { id: 166, co: '107', zoneId: 10, name: 'Fq107 - Orito - Putumayo', leader: 'Anderson Gelvez' },
+            { id: 176, co: '110', zoneId: 10, name: 'FQ110 SAN VICENTE DEL CAGUÁN', leader: 'Anderson Gelvez' },
 
-            // Julian Andres Marin (Medellín Metropolitano - 6 PDVs)
-            { id: 89, co: 'N10', zoneId: 9, name: 'N10 Carpa Movil Medellin', leader: 'Julian Andres Marin' },
-            { id: 90, co: '94', zoneId: 9, name: 'Q094 - Medellin - CC Aventura', leader: 'Julian Andres Marin' },
-            { id: 91, co: '125', zoneId: 9, name: 'Q125 - Medellin - Plaza Fabricato', leader: 'Julian Andres Marin' },
-            { id: 92, co: '152', zoneId: 9, name: 'Q152 - Rionegro CC San Nicolas', leader: 'Julian Andres Marin' },
-            { id: 93, co: '503', zoneId: 9, name: 'QST503 - CC Florida Medellin', leader: 'Julian Andres Marin' },
-            { id: 94, co: '76', zoneId: 9, name: 'Q076 - Medellin - Cc Florida', leader: 'Julian Andres Marin' }
+            // Zona 11 - Jose Salazar (10 PDVs)
+            { id: 21, co: '45', zoneId: 11, name: 'Q045-Pasto-Cc Unicentro', leader: 'Jose Salazar' },
+            { id: 27, co: '57', zoneId: 11, name: 'Q057-Pasto-Cc Unico', leader: 'Jose Salazar' },
+            { id: 47, co: '90', zoneId: 11, name: 'Q090-Ipiales-Cc Gran Plaza', leader: 'Jose Salazar' },
+            { id: 67, co: '126', zoneId: 11, name: 'Q126-Ipiales-Centro', leader: 'Jose Salazar' },
+            { id: 74, co: '135', zoneId: 11, name: 'Q135-Pasto-Centro', leader: 'Jose Salazar' },
+            { id: 101, co: '33', zoneId: 11, name: 'Fq33-Pasto', leader: 'Jose Salazar' },
+            { id: 104, co: '38', zoneId: 11, name: 'Fq38-Tumaco', leader: 'Jose Salazar' },
+            { id: 150, co: '91', zoneId: 11, name: 'Fq91 - La Union - Nariño', leader: 'Jose Salazar' },
+            { id: 151, co: '92', zoneId: 11, name: 'Fq92 - El Bordo - Cauca', leader: 'Jose Salazar' },
+            { id: 155, co: '96', zoneId: 11, name: 'Fq96 - Tuquerres Nariño', leader: 'Jose Salazar' },
         ];
 
         // Base Oficial: Todos los PDVs y Zonas en 0% (Sin datos de prueba)
@@ -964,7 +1051,8 @@
                 try {
                     const parsed = JSON.parse(savedCuts);
                     const hasTestMockData = parsed.some(c => c.id === 'corte-1' || c.id === 'corte-2' || c.id === 'corte-3' || c.id === 'corte-final');
-                    if (hasTestMockData || !parsed.length || !parsed[0].data || parsed[0].data.length !== SEED_ZONES.length) {
+                    const isOldPdvCount = parsed[0]?.pdvData && Object.keys(parsed[0].pdvData).length !== SEED_PDVS.length;
+                    if (hasTestMockData || isOldPdvCount || !parsed.length || !parsed[0].data || parsed[0].data.length !== SEED_ZONES.length) {
                         cuts = JSON.parse(JSON.stringify(SEED_CUTS));
                         localStorage.setItem('questCuts', JSON.stringify(cuts));
                     } else {
@@ -1113,7 +1201,7 @@
 
         function populateZoneScopeSelector() {
             const select = document.getElementById('zone-scope-selector');
-            let opts = `<option value="all">🌐 Vista Nacional (11 Zonas / 94 PDVs)</option>`;
+            let opts = `<option value="all">🌐 Vista Nacional (11 Zonas / 181 PDVs)</option>`;
             SEED_ZONES.forEach(z => {
                 const pdvCount = SEED_PDVS.filter(p => p.zoneId === z.id).length;
                 opts += `<option value="${z.id}">${z.emoji} ${z.name} - ${z.leader} (${pdvCount} PDVs)</option>`;
@@ -1254,14 +1342,14 @@
             if (currentZoneScope === 'all') {
                 breadcrumb.classList.add('hidden');
                 arenaLeft.textContent = 'ALTÍMETRO DE COMBATE // NACIONAL';
-                arenaCenter.textContent = 'ESCUADRÓN NACIONAL // 11 ZONAS LÍDERES // 94 TIENDAS';
+                arenaCenter.textContent = 'ESCUADRÓN NACIONAL // 11 ZONAS LÍDERES // 181 TIENDAS';
                 runwayStatus.textContent = 'PISTA ACTIVA // CABECERA NACIONAL';
                 runwayFormation.textContent = 'ESCUADRONES EN FORMACIÓN VERTICAL';
                 tabPodioTitle.textContent = 'Podio de Honor (Top 2)';
                 podiumHeading.innerHTML = '<span>🏆</span> <span>Podio de Honor Nacional (Top 2)</span> <span>🥈</span>';
                 podiumSubheading.textContent = 'Los 2 comandantes de zona con mayor altitud en cumplimiento en este corte';
                 tableHeading.textContent = '📊 Reporte Operacional Nacional';
-                tableSubheading.textContent = 'Ranking consolidado de las 11 zonas estratégicas (94 PDVs)';
+                tableSubheading.textContent = 'Ranking consolidado de las 11 zonas estratégicas (181 PDVs)';
                 tableColName.textContent = 'Zona / Escuadrón ↕';
                 tableColLeader.textContent = 'Comandante ↕';
             } else {
@@ -1988,7 +2076,7 @@
                                 if (itemStr === coStr || itemStr === 'co ' + coStr || itemStr === 'co' + coStr) return true;
                             }
                             // Coincidencia por código de tienda (ej: Q087, QST506, N10)
-                            const codeMatch = p.name.match(/^(Q(?:ST)?\d+|N\d+)/i);
+                            const codeMatch = p.name.match(/^(Q(?:ST)?\s*\d+|FQ\s*\d+|N\d+)/i);
                             if (codeMatch) {
                                 const code = codeMatch[1].toLowerCase();
                                 if (itemStr === code || itemStr.startsWith(code + ' ') || itemStr.startsWith(code + '-') || itemStr.includes(code)) {
