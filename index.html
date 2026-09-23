@@ -6,6 +6,7 @@
     <title>Conquista tu Zona en Aniversario - Escuadrón de Combate</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
         tailwind.config = {
             darkMode: 'class',
@@ -255,10 +256,22 @@
                     <span class="hidden lg:inline text-xs font-semibold" id="theme-text">Modo Hangar</span>
                 </button>
 
+                <!-- Cloud Sync Status Badge -->
+                <div id="cloud-sync-badge" class="hidden sm:flex items-center gap-1.5 text-[11px] font-bold px-2.5 py-1.5 rounded-lg border bg-gray-200 dark:bg-navy-800 text-gray-500 border-gray-300 dark:border-navy-700" title="Estado de sincronización en la nube">
+                    <span id="cloud-dot" class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
+                    <span id="cloud-status-text">Conectando...</span>
+                </div>
+
                 <!-- Cut Selector -->
                 <select id="cut-selector" class="bg-white dark:bg-navy-900 border border-gray-300 dark:border-navy-700 text-gray-900 dark:text-white text-xs sm:text-sm font-semibold p-2 rounded-lg shadow-sm outline-none focus:ring-2 focus:ring-amber-500">
                     <!-- Populated by JS -->
                 </select>
+
+                <!-- Delete Cut Button (Solo Maestro) -->
+                <button id="delete-cut-btn" onclick="deleteCurrentCut()" class="bg-red-500/20 hover:bg-red-500 text-red-700 dark:text-red-300 hover:text-white border border-red-500/40 font-bold text-xs p-2 rounded-lg shadow-xs transition items-center gap-1 hidden" title="Eliminar este corte de la nube y del sistema">
+                    <span>🗑️</span>
+                    <span class="hidden xl:inline">Eliminar</span>
+                </button>
 
                 <!-- New Cut Button (Solo Maestro) -->
                 <button id="new-cut-btn" onclick="openModal()" class="bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white font-bold text-xs sm:text-sm px-3.5 py-2 rounded-lg shadow-md hover:shadow-lg transition items-center gap-1 hidden">
@@ -789,6 +802,21 @@
             }
         ];
 
+        // ==========================================
+        // CONFIGURACIÓN DE SUPABASE CLOUD SYNC
+        // ==========================================
+        const SUPABASE_URL = "https://aqgfocnbsjyhcpqfxrsa.supabase.co";
+        const SUPABASE_ANON_KEY = "sb_publishable_jkaQRTZe82IDDPiXTb0jMg_bj19rK0U";
+        let supabaseClient = null;
+
+        try {
+            if (typeof supabase !== 'undefined' && supabase.createClient) {
+                supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            }
+        } catch (e) {
+            console.warn('No se pudo inicializar Supabase:', e);
+        }
+
         // State
         let cuts = [];
         let currentCutId = null;
@@ -915,7 +943,7 @@
         }
 
         // Initialization
-        function init() {
+        async function init() {
             // Inicializar Roles y Autenticación (Espectador vs Maestro Santiago)
             initAuth();
 
@@ -959,6 +987,7 @@
             document.getElementById('cut-selector').value = currentCutId;
             document.getElementById('cut-selector').addEventListener('change', (e) => {
                 currentCutId = e.target.value;
+                updateDeleteBtnVisibility();
                 playJetSound();
                 renderAll();
             });
@@ -977,6 +1006,101 @@
                 const tabBtn = document.querySelector(`button[onclick*="switchTab('${tab}'"]`);
                 if (tabBtn) switchTab(tab, tabBtn);
             }
+
+            // Sincronizar automáticamente con Supabase en la nube
+            await loadCutsFromCloud();
+            setupRealtimeSync();
+        }
+
+        function updateCloudStatusUI(status) {
+            const badge = document.getElementById('cloud-sync-badge');
+            const dot = document.getElementById('cloud-dot');
+            const txt = document.getElementById('cloud-status-text');
+            if (!badge || !dot || !txt) return;
+
+            if (status === 'connected') {
+                dot.className = 'w-2 h-2 rounded-full bg-emerald-500 animate-pulse';
+                txt.textContent = 'En la Nube';
+                badge.className = 'hidden sm:flex items-center gap-1.5 text-[11px] font-bold px-2.5 py-1.5 rounded-lg border bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/30';
+                badge.title = 'Conectado a la base de datos central de Quest. Sincronizado para todo el país.';
+            } else if (status === 'offline') {
+                dot.className = 'w-2 h-2 rounded-full bg-orange-500';
+                txt.textContent = 'Modo Local';
+                badge.className = 'hidden sm:flex items-center gap-1.5 text-[11px] font-bold px-2.5 py-1.5 rounded-lg border bg-orange-500/10 text-orange-600 dark:text-orange-400 border-orange-500/30';
+                badge.title = 'Sin conexión a Supabase. Operando con memoria local del navegador.';
+            }
+        }
+
+        async function loadCutsFromCloud() {
+            if (!supabaseClient) {
+                updateCloudStatusUI('offline');
+                return;
+            }
+            try {
+                const { data, error } = await supabaseClient
+                    .from('quest_cortes')
+                    .select('*')
+                    .order('created_at', { ascending: true });
+
+                if (error) {
+                    console.error('Error al cargar cortes de Supabase:', error);
+                    updateCloudStatusUI('offline');
+                    return;
+                }
+
+                updateCloudStatusUI('connected');
+
+                if (data && data.length > 0) {
+                    const cloudCuts = data.map(item => ({
+                        id: item.id,
+                        name: item.name,
+                        date: item.date,
+                        data: item.data,
+                        pdvData: item.pdv_data || undefined
+                    }));
+
+                    // Corte base inicial siempre presente
+                    cuts = [JSON.parse(JSON.stringify(SEED_CUTS[0])), ...cloudCuts.filter(c => c.id !== 'corte-inicial')];
+                    localStorage.setItem('questCuts', JSON.stringify(cuts));
+
+                    // Seleccionar el corte más reciente
+                    currentCutId = cuts[cuts.length - 1].id;
+
+                    populateCutSelector();
+                    document.getElementById('cut-selector').value = currentCutId;
+                    updateDeleteBtnVisibility();
+                    renderAll();
+                }
+            } catch (err) {
+                console.warn('Excepción al sincronizar con Supabase:', err);
+                updateCloudStatusUI('offline');
+            }
+        }
+
+        function setupRealtimeSync() {
+            if (!supabaseClient) return;
+            try {
+                supabaseClient.channel('quest_cortes_live')
+                    .on('postgres_changes', { event: '*', schema: 'public', table: 'quest_cortes' }, (payload) => {
+                        console.log('⚡ Actualización en tiempo real recibida:', payload);
+                        loadCutsFromCloud();
+                    })
+                    .subscribe();
+            } catch(e) {
+                console.warn('No se pudo activar Realtime:', e);
+            }
+        }
+
+        function updateDeleteBtnVisibility() {
+            const btn = document.getElementById('delete-cut-btn');
+            if (!btn) return;
+            if (currentAuthRole === 'MAESTRO' && currentCutId && currentCutId !== 'corte-inicial') {
+                btn.classList.remove('hidden');
+                btn.classList.add('flex');
+            } else {
+                btn.classList.add('hidden');
+                btn.classList.remove('flex');
+            }
         }
 
         function populateCutSelector() {
@@ -984,6 +1108,7 @@
             select.innerHTML = cuts.map(cut => 
                 `<option value="${cut.id}">${cut.name} (${cut.date})</option>`
             ).join('');
+            updateDeleteBtnVisibility();
         }
 
         function populateZoneScopeSelector() {
@@ -1627,6 +1752,7 @@
                     exportCsvBtn.classList.remove('flex');
                 }
             }
+            updateDeleteBtnVisibility();
         }
 
         function openLoginModal() {
@@ -1906,7 +2032,7 @@
             }
         }
 
-        function saveNewCut() {
+        async function saveNewCut() {
             if (currentAuthRole !== 'MAESTRO') {
                 showToast('⚠️ No autorizado: Se requiere perfil de Maestro (Santiago) para guardar cortes.', 'error');
                 return;
@@ -1955,11 +2081,74 @@
             currentCutId = newCut.id;
             populateCutSelector();
             document.getElementById('cut-selector').value = currentCutId;
+            updateDeleteBtnVisibility();
             
             closeModal();
             playJetSound();
             renderAll();
-            showToast('🚀 Reporte guardado y desplegado en pista');
+            showToast('🚀 Reporte guardado localmente. Sincronizando con la nube...');
+
+            // Sincronizar en Supabase para toda Colombia
+            if (supabaseClient) {
+                try {
+                    const { error } = await supabaseClient.from('quest_cortes').insert([{
+                        id: newCut.id,
+                        name: newCut.name,
+                        date: newCut.date,
+                        data: newCut.data,
+                        pdv_data: newCut.pdvData || null
+                    }]);
+
+                    if (error) {
+                        console.error('Error al insertar corte en Supabase:', error);
+                        showToast('⚠️ Guardado localmente, pero falló la subida a la nube.', 'warning');
+                    } else {
+                        showToast('☁️ ¡Reporte sincronizado con éxito para toda Colombia!');
+                    }
+                } catch(e) {
+                    console.error('Excepción con Supabase:', e);
+                }
+            }
+        }
+
+        async function deleteCurrentCut() {
+            if (currentAuthRole !== 'MAESTRO') {
+                showToast('⚠️ No autorizado: Solo el Maestro (Santiago) puede eliminar reportes.', 'error');
+                return;
+            }
+            if (currentCutId === 'corte-inicial') {
+                showToast('⚠️ No se puede eliminar el Corte Inicial Base (0%).', 'error');
+                return;
+            }
+            const currentCut = cuts.find(c => c.id === currentCutId);
+            if (!currentCut) return;
+
+            if (!confirm(`¿Estás seguro de eliminar el reporte "${currentCut.name}"? Se borrará de la nube para todos los dispositivos.`)) {
+                return;
+            }
+
+            const cutIdToDelete = currentCutId;
+            cuts = cuts.filter(c => c.id !== cutIdToDelete);
+            localStorage.setItem('questCuts', JSON.stringify(cuts));
+            currentCutId = cuts[cuts.length - 1].id;
+            populateCutSelector();
+            document.getElementById('cut-selector').value = currentCutId;
+            updateDeleteBtnVisibility();
+            renderAll();
+            showToast('🗑️ Eliminando reporte de la nube...');
+
+            if (supabaseClient) {
+                try {
+                    const { error } = await supabaseClient.from('quest_cortes').delete().eq('id', cutIdToDelete);
+                    if (!error) {
+                        showToast('☁️ Reporte eliminado de la base de datos central.');
+                    } else {
+                        console.error('Error al borrar en Supabase:', error);
+                    }
+                } catch(e) {
+                    console.error('Excepción al borrar en Supabase:', e);
+                }
+            }
         }
 
         // Run on load
