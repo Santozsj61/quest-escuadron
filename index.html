@@ -549,7 +549,7 @@
                 <div class="bg-gray-50 dark:bg-navy-950 p-4 border-2 border-dashed border-gray-300 dark:border-navy-700 rounded-xl text-center">
                     <p class="mb-2 font-bold text-gray-700 dark:text-gray-300">Opción A: Subir Archivo Excel o CSV</p>
                     <input type="file" id="file-upload" accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel" class="block w-full text-xs text-gray-500 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-amber-500 file:text-white hover:file:bg-amber-600 cursor-pointer">
-                    <p class="text-[10px] text-gray-400 mt-2">Formato esperado: [Zona/PDV, % Cumplimiento] (ej: Costa, 104.5 o Viva Barranquilla, 108.2)</p>
+                    <p class="text-[10px] text-gray-400 mt-2">Compatible con Excel de referencias Quest (unifica automáticamente presupuestos y ventas por PDV) o formato [PDV, %]</p>
                 </div>
 
                 <div>
@@ -1947,6 +1947,115 @@
             previewDataCache = [];
         }
 
+        // ==========================================
+        // UTILIDADES DE PROCESAMIENTO Y AGREGACIÓN
+        // ==========================================
+        function parseNumeric(val) {
+            if (val === null || val === undefined || val === '') return 0;
+            if (typeof val === 'number') return isNaN(val) ? 0 : val;
+            let s = String(val).trim().replace(/[$ '"\t]/g, '');
+            if (!s) return 0;
+
+            if (s.includes('.') && s.includes(',')) {
+                if (s.lastIndexOf(',') > s.lastIndexOf('.')) {
+                    s = s.replace(/\./g, '').replace(',', '.');
+                } else {
+                    s = s.replace(/,/g, '');
+                }
+            } else if (s.includes('.')) {
+                const parts = s.split('.');
+                if (parts.length > 2) {
+                    s = s.replace(/\./g, '');
+                } else if (parts.length === 2) {
+                    if (parts[1].length === 3) {
+                        s = parts[0] + parts[1];
+                    } else if (parts[1].length === 0) {
+                        s = parts[0];
+                    }
+                }
+            } else if (s.includes(',')) {
+                const parts = s.split(',');
+                if (parts.length > 2) {
+                    s = s.replace(/,/g, '');
+                } else if (parts.length === 2 && parts[1].length === 3) {
+                    s = parts[0] + parts[1];
+                } else {
+                    s = s.replace(',', '.');
+                }
+            }
+            const n = parseFloat(s);
+            return isNaN(n) ? 0 : n;
+        }
+
+        function findPDVMatch(rawText, rawCo, rawLeader) {
+            if (!rawText && !rawCo) return null;
+            const textClean = String(rawText || '').trim().toLowerCase();
+            const coClean = String(rawCo || '').replace(/[^0-9]/g, '');
+            const leaderClean = String(rawLeader || '').trim().toLowerCase();
+
+            // Detectar prefijo y número en rawText (ej: "FQ006 - Florida - Valle del Cauca", "Q023 - Barranquilla", "QST505")
+            const textCodeMatch = textClean.match(/^(qst|fq|q|n)\s*0*(\d+)/i);
+            let targetPrefix = textCodeMatch ? textCodeMatch[1].toLowerCase() : null;
+            let targetNum = textCodeMatch ? parseInt(textCodeMatch[2], 10) : (coClean ? parseInt(coClean, 10) : null);
+
+            if (!targetPrefix) {
+                if (textClean.includes('franquicia') || textClean.startsWith('fq')) targetPrefix = 'fq';
+                else if (textClean.startsWith('qst')) targetPrefix = 'qst';
+                else if (textClean.startsWith('q')) targetPrefix = 'q';
+            }
+
+            if (targetNum !== null) {
+                const candidates = SEED_PDVS.filter(p => {
+                    const pCodeMatch = p.name.toLowerCase().match(/^(qst|fq|q|n)\s*0*(\d+)/i);
+                    const pNum = pCodeMatch ? parseInt(pCodeMatch[2], 10) : (p.co ? parseInt(p.co, 10) : null);
+                    const pPrefix = pCodeMatch ? pCodeMatch[1].toLowerCase() : (p.name.toLowerCase().startsWith('fq') ? 'fq' : 'q');
+                    
+                    if (pNum === targetNum) {
+                        if (targetPrefix) return pPrefix === targetPrefix;
+                        return true;
+                    }
+                    return false;
+                });
+
+                if (candidates.length === 1) return candidates[0];
+                if (candidates.length > 1) {
+                    if (leaderClean) {
+                        const byLeader = candidates.find(c => {
+                            const l = c.leader.toLowerCase();
+                            return leaderClean.includes(l) || l.includes(leaderClean) || leaderClean.split(' ').some(w => w.length > 3 && l.includes(w));
+                        });
+                        if (byLeader) return byLeader;
+                    }
+                    return candidates[0];
+                }
+            }
+
+            // Coincidencia exacta o parcial por nombre completo o CO
+            for (const p of SEED_PDVS) {
+                const pn = p.name.toLowerCase();
+                if (textClean && (pn === textClean || textClean.includes(pn) || pn.includes(textClean))) {
+                    return p;
+                }
+            }
+
+            // Búsqueda por líder y ciudad
+            if (leaderClean) {
+                const leaderPDVs = SEED_PDVS.filter(p => {
+                    const l = p.leader.toLowerCase();
+                    return leaderClean.includes(l) || l.includes(leaderClean);
+                });
+                if (leaderPDVs.length > 0 && textClean) {
+                    const byCity = leaderPDVs.find(p => {
+                        const words = p.name.toLowerCase().split(/[- ]+/);
+                        return words.some(w => w.length > 3 && textClean.includes(w));
+                    });
+                    if (byCity) return byCity;
+                }
+            }
+
+            return null;
+        }
+
         function handleFileUpload(e) {
             const file = e.target.files[0];
             if (!file) return;
@@ -1966,25 +2075,38 @@
 
                     // Detección inteligente de encabezados
                     let headerRowIdx = -1;
-                    let nameColIdx = 0;
-                    let compColIdx = 1;
+                    let nameColIdx = -1;
+                    let coColIdx = -1;
+                    let liderColIdx = -1;
+                    let compColIdx = -1;
                     let ventaColIdx = -1;
                     let pptoColIdx = -1;
 
-                    for (let r = 0; r < Math.min(rows.length, 10); r++) {
+                    for (let r = 0; r < Math.min(rows.length, 15); r++) {
                         const row = rows[r];
                         if (!Array.isArray(row)) continue;
                         const rowStr = row.map(c => String(c).toLowerCase().trim());
                         
-                        // Buscar columnas clave (tienda, pdv, co, etc.)
-                        const foundName = rowStr.findIndex(c => c.includes('tienda') || c.includes('pdv') || c.includes('zona') || c.includes('regional') || c.includes('nombre') || c.includes('almacen') || c === 'co' || c.includes('centro') || c.includes('codigo'));
+                        // Buscar columnas específicas de Quest
+                        const foundDescCO = rowStr.findIndex(c => c.includes('desc. c.o') || c.includes('desc c.o') || c.includes('desc. co') || c.includes('desc co'));
+                        const foundName = foundDescCO !== -1 ? foundDescCO : rowStr.findIndex(c => c.includes('tienda') || c.includes('pdv') || c.includes('zona') || c.includes('regional') || c.includes('nombre') || c.includes('almacen') || c.includes('centro'));
+                        const foundCO = rowStr.findIndex(c => c === 'c.o.' || c === 'c.o' || c === 'co' || c.includes('c.o.'));
+                        const foundLider = rowStr.findIndex(c => c.includes('lider') || c.includes('líder') || c.includes('supervisor'));
+                        
+                        // Presupuesto: Ppto Valor subtotal, Meta, Presupuesto
+                        const foundPpto = rowStr.findIndex(c => (c.includes('ppto') && c.includes('valor')) || c.includes('ppto valor subtotal') || c.includes('presupuesto') || c.includes('meta') || (c.includes('ppto') && !c.includes('cant')));
+                        
+                        // Venta real: Valor subtotal, Venta, Real (asegurando no tomar Ppto ni Facturas actual)
+                        const foundVenta = rowStr.findIndex(c => (c.includes('valor subtotal') && !c.includes('ppto')) || (c.includes('subtotal') && !c.includes('ppto') && !c.includes('cant')) || (c === 'venta') || (c.includes('venta') && !c.includes('cant') && !c.includes('ppto')) || (c.includes('real') && !c.includes('cant')));
+                        
+                        // Cumplimiento directo (%)
                         const foundComp = rowStr.findIndex(c => c.includes('cumpli') || c.includes('%') || c.includes('avance') || c.includes('ejecuc'));
-                        const foundVenta = rowStr.findIndex(c => c.includes('venta') || c.includes('real') || c.includes('factur'));
-                        const foundPpto = rowStr.findIndex(c => c.includes('ppto') || c.includes('presupuesto') || c.includes('meta'));
 
-                        if (foundName !== -1 && (foundComp !== -1 || (foundVenta !== -1 && foundPpto !== -1))) {
+                        if ((foundName !== -1 || foundCO !== -1) && (foundComp !== -1 || (foundVenta !== -1 && foundPpto !== -1))) {
                             headerRowIdx = r;
-                            nameColIdx = foundName;
+                            nameColIdx = foundName !== -1 ? foundName : foundCO;
+                            coColIdx = foundCO;
+                            liderColIdx = foundLider;
                             compColIdx = foundComp;
                             ventaColIdx = foundVenta;
                             pptoColIdx = foundPpto;
@@ -1992,50 +2114,88 @@
                         }
                     }
 
-                    let text = '';
                     const startRow = headerRowIdx !== -1 ? headerRowIdx + 1 : 0;
+                    let text = '';
 
-                    for (let r = startRow; r < rows.length; r++) {
-                        const row = rows[r];
-                        if (!row || row.length < 2) continue;
+                    // CASO 1: Archivo con Ppto y Venta (Múltiples referencias SKU y Días del 23 al 30) -> UNIFICACIÓN GLOBAL POR PDV
+                    if (pptoColIdx !== -1 && ventaColIdx !== -1) {
+                        const pdvAgg = new Map();
+                        let totalRows = 0;
 
-                        const nameVal = String(row[nameColIdx] || '').trim();
-                        if (!nameVal) continue;
+                        for (let r = startRow; r < rows.length; r++) {
+                            const row = rows[r];
+                            if (!row || row.length < 2) continue;
 
-                        let compVal = null;
-                        if (compColIdx !== -1 && row[compColIdx] !== undefined && row[compColIdx] !== '') {
-                            let raw = String(row[compColIdx]).replace(/[^0-9.,-]/g, '').replace(',', '.');
+                            const rawName = String(row[nameColIdx] || '').trim();
+                            const rawCO = coColIdx !== -1 ? String(row[coColIdx] || '').trim() : '';
+                            const rawLider = liderColIdx !== -1 ? String(row[liderColIdx] || '').trim() : '';
+
+                            if (!rawName && !rawCO) continue;
+
+                            const pptoVal = parseNumeric(row[pptoColIdx]);
+                            const ventaVal = parseNumeric(row[ventaColIdx]);
+
+                            const matched = findPDVMatch(rawName, rawCO, rawLider);
+                            const key = matched ? ('pdv_' + matched.id) : ('raw_' + (rawName || rawCO));
+
+                            if (!pdvAgg.has(key)) {
+                                pdvAgg.set(key, {
+                                    matched: matched,
+                                    name: matched ? matched.name : (rawName || ('CO ' + rawCO)),
+                                    ppto: 0,
+                                    venta: 0,
+                                    count: 0
+                                });
+                            }
+
+                            const item = pdvAgg.get(key);
+                            item.ppto += pptoVal;
+                            item.venta += ventaVal;
+                            item.count++;
+                            totalRows++;
+                        }
+
+                        // Generar líneas unificadas por PDV calculando el % de cumplimiento global
+                        // REGLA: No se muestran valores en pesos ($), solo el % de cumplimiento
+                        pdvAgg.forEach(item => {
+                            const comp = item.ppto > 0 ? Math.round((item.venta / item.ppto) * 1000) / 10 : 0;
+                            text += `${item.name}, ${comp}%\n`;
+                        });
+
+                        document.getElementById('manual-data').value = text;
+                        processData(); // Previsualizar automáticamente
+                        showToast(`⚡ ¡${pdvAgg.size} PDVs unificados globalmente (${totalRows} registros procesados)!`);
+                    } else {
+                        // CASO 2: Archivo tradicional con porcentaje directo
+                        for (let r = startRow; r < rows.length; r++) {
+                            const row = rows[r];
+                            if (!row || row.length < 2) continue;
+
+                            const nameVal = String(row[nameColIdx !== -1 ? nameColIdx : 0] || '').trim();
+                            if (!nameVal) continue;
+
+                            let compVal = null;
+                            const compIdx = compColIdx !== -1 ? compColIdx : 1;
+                            let raw = String(row[compIdx] || '').replace(/[^0-9.,-]/g, '').replace(',', '.');
                             let num = parseFloat(raw);
                             if (!isNaN(num)) {
-                                // Si viene como decimal (ej: 1.05 o 0.95), convertir a porcentaje
-                                if (num > 0 && num <= 2.5 && String(row[compColIdx]).includes('.')) {
+                                if (num > 0 && num <= 2.5 && String(row[compIdx]).includes('.')) {
                                     num = num * 100;
                                 }
                                 compVal = Math.round(num * 10) / 10;
                             }
-                        } else if (ventaColIdx !== -1 && pptoColIdx !== -1) {
-                            let vta = parseFloat(String(row[ventaColIdx]).replace(/[^0-9.,-]/g, '').replace(',', '.'));
-                            let ppto = parseFloat(String(row[pptoColIdx]).replace(/[^0-9.,-]/g, '').replace(',', '.'));
-                            if (!isNaN(vta) && !isNaN(ppto) && ppto > 0) {
-                                compVal = Math.round((vta / ppto) * 1000) / 10;
-                            }
-                        } else {
-                            // Columna 1 por defecto
-                            let raw = String(row[1] || '').replace(/[^0-9.,-]/g, '').replace(',', '.');
-                            let num = parseFloat(raw);
-                            if (!isNaN(num)) {
-                                compVal = num > 0 && num <= 2.5 ? Math.round(num * 1000) / 10 : Math.round(num * 10) / 10;
+
+                            if (compVal !== null) {
+                                text += `${nameVal}, ${compVal}%\n`;
                             }
                         }
 
-                        if (compVal !== null) {
-                            text += `${nameVal}, ${compVal}\n`;
-                        }
+                        document.getElementById('manual-data').value = text;
+                        processData();
+                        showToast('Archivo Excel leído correctamente.');
                     }
-
-                    document.getElementById('manual-data').value = text;
-                    showToast('Archivo Excel leído correctamente. Haz clic en Previsualizar.');
                 } catch(err) {
+                    console.error('Error procesando archivo:', err);
                     showToast('Error al procesar el archivo Excel. Revisa el formato.', 'error');
                 }
             };
@@ -2043,8 +2203,72 @@
         }
 
         function processData() {
-            const text = document.getElementById('manual-data').value;
-            const lines = text.split('\n');
+            const rawText = document.getElementById('manual-data').value.trim();
+            if (!rawText) {
+                showToast('Ingresa o sube datos para procesar.', 'warning');
+                return;
+            }
+
+            const rawLines = rawText.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+            if (rawLines.length === 0) return;
+
+            // Verificar si el texto pegado es una tabla completa (con encabezados de Ppto y Subtotal)
+            const firstLineLower = rawLines[0].toLowerCase();
+            const isTabularWithPpto = (firstLineLower.includes('ppto') || firstLineLower.includes('subtotal')) && 
+                                     (rawLines[0].includes('\t') || rawLines[0].includes(';') || (rawLines[0].split(',').length > 4));
+
+            if (isTabularWithPpto) {
+                // Convertir texto delimitado en matriz 2D
+                const rows = rawLines.map(line => {
+                    if (line.includes('\t')) return line.split('\t');
+                    if (line.includes(';')) return line.split(';');
+                    return line.split(',');
+                });
+
+                // Detectar columnas
+                let nameCol = -1, coCol = -1, liderCol = -1, pptoCol = -1, ventaCol = -1;
+                const header = rows[0].map(c => String(c).toLowerCase().trim());
+                
+                nameCol = header.findIndex(c => c.includes('desc. c.o') || c.includes('desc c.o') || c.includes('tienda') || c.includes('pdv'));
+                if (nameCol === -1) nameCol = header.findIndex(c => c === 'co' || c === 'c.o.' || c === 'c.o');
+                coCol = header.findIndex(c => c === 'c.o.' || c === 'c.o' || c === 'co');
+                liderCol = header.findIndex(c => c.includes('lider') || c.includes('líder'));
+                pptoCol = header.findIndex(c => (c.includes('ppto') && c.includes('valor')) || c.includes('ppto valor subtotal') || (c.includes('ppto') && !c.includes('cant')));
+                ventaCol = header.findIndex(c => (c.includes('valor subtotal') && !c.includes('ppto')) || (c.includes('subtotal') && !c.includes('ppto') && !c.includes('cant')) || c === 'venta');
+
+                if (pptoCol !== -1 && ventaCol !== -1) {
+                    const pdvAgg = new Map();
+                    for (let r = 1; r < rows.length; r++) {
+                        const row = rows[r];
+                        if (!row || row.length < 2) continue;
+                        const rawName = String(row[nameCol !== -1 ? nameCol : 0] || '').trim();
+                        const rawCO = coCol !== -1 ? String(row[coCol] || '').trim() : '';
+                        const rawLider = liderCol !== -1 ? String(row[liderCol] || '').trim() : '';
+
+                        const pVal = parseNumeric(row[pptoCol]);
+                        const vVal = parseNumeric(row[ventaCol]);
+                        const matched = findPDVMatch(rawName, rawCO, rawLider);
+                        const key = matched ? ('pdv_' + matched.id) : ('raw_' + (rawName || rawCO));
+
+                        if (!pdvAgg.has(key)) {
+                            pdvAgg.set(key, { matched, name: matched ? matched.name : rawName, ppto: 0, venta: 0 });
+                        }
+                        const item = pdvAgg.get(key);
+                        item.ppto += pVal;
+                        item.venta += vVal;
+                    }
+
+                    let cleanText = '';
+                    pdvAgg.forEach(item => {
+                        const comp = item.ppto > 0 ? Math.round((item.venta / item.ppto) * 1000) / 10 : 0;
+                        cleanText += `${item.name}, ${comp}%\n`;
+                    });
+                    document.getElementById('manual-data').value = cleanText;
+                }
+            }
+
+            // Procesamiento de líneas estándar [Nombre, %]
+            const lines = document.getElementById('manual-data').value.split('\n');
             let parsed = [];
 
             lines.forEach(line => {
@@ -2060,31 +2284,15 @@
                         }
                         comp = Math.round(comp * 10) / 10;
 
-                        // Búsqueda inteligente por nombre de zona o nombre de líder
+                        // Búsqueda inteligente de Zona
                         const matchedZone = SEED_ZONES.find(z => {
                             const n = z.name.toLowerCase();
                             const l = z.leader.toLowerCase();
                             return itemStr === n || itemStr === l || itemStr.includes(n) || n.includes(itemStr) || itemStr.includes(l) || l.includes(itemStr);
                         });
 
-                        // Búsqueda inteligente de PDV por CO, código (Q087, QST506, N10, etc.) o por nombre de tienda
-                        const matchedPDV = SEED_PDVS.find(p => {
-                            const n = p.name.toLowerCase();
-                            // Coincidencia exacta por CO (ej: "87", "N10", "506", "co 87", "co87")
-                            if (p.co) {
-                                const coStr = p.co.toLowerCase();
-                                if (itemStr === coStr || itemStr === 'co ' + coStr || itemStr === 'co' + coStr) return true;
-                            }
-                            // Coincidencia por código de tienda (ej: Q087, QST506, N10)
-                            const codeMatch = p.name.match(/^(Q(?:ST)?\s*\d+|FQ\s*\d+|N\d+)/i);
-                            if (codeMatch) {
-                                const code = codeMatch[1].toLowerCase();
-                                if (itemStr === code || itemStr.startsWith(code + ' ') || itemStr.startsWith(code + '-') || itemStr.includes(code)) {
-                                    return true;
-                                }
-                            }
-                            return itemStr === n || itemStr.includes(n) || n.includes(itemStr);
-                        });
+                        // Búsqueda inteligente de PDV usando findPDVMatch
+                        const matchedPDV = findPDVMatch(itemStr, null, null);
 
                         if (matchedZone) {
                             parsed.push({ type: 'zone', id: matchedZone.id, name: `${matchedZone.name} (${matchedZone.leader})`, compliance: comp });
@@ -2114,7 +2322,7 @@
                 const saveBtn = document.getElementById('save-cut-btn');
                 saveBtn.disabled = false;
                 saveBtn.classList.remove('opacity-50', 'cursor-not-allowed');
-                showToast(`${previewDataCache.length} ítems identificados.`);
+                showToast(`🎯 ${previewDataCache.length} PDVs/Zonas identificados.`);
             } else {
                 showToast('No se detectaron zonas ni PDVs válidos en el texto.', 'error');
             }
