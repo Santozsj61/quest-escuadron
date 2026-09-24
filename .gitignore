@@ -3,3 +3,5 @@ node_modules/
 Thumbs.db
 *.log
 .vercel
+sync_corte1.ps1
+corte_payload.json
