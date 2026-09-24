@@ -842,15 +842,6 @@ const SEED_PDVS = [
             { id: 171, co: '155', zoneId: 8, name: 'Q155 - Bogota - CC Outlet las Americas', leader: 'Andrea Johana Perez Fonseca' },
             { id: 172, co: '156', zoneId: 4, name: 'Q156 - Medellin - CC Santa Fe', leader: 'Andrea Bañol' },
             { id: 173, co: '157', zoneId: 5, name: 'Q157 - Riohacha - CC Viva Wajira', leader: 'Fabian Sanchez' },
-            { id: 174, co: '501', zoneId: 7, name: 'QST501 Cali - Plaza Q', leader: 'Anyela Gonzalez Castrillon' },
-            { id: 175, co: '502', zoneId: 3, name: 'QST502 - Cali - Cc Unico 2', leader: 'Yoryani Valderrama' },
-            { id: 176, co: '503', zoneId: 9, name: 'QST503 - Medellin - Cc Florida', leader: 'Julian Andres Marin' },
-            { id: 177, co: '504', zoneId: 3, name: 'QST504 - Cali - Cc Jardin Plaza', leader: 'Yoryani Valderrama' },
-            { id: 178, co: '506', zoneId: 2, name: 'QST506 - Palmira - Cc Llanogrande', leader: 'Alexander López López' },
-            { id: 179, co: '506', zoneId: 2, name: 'QST506 - Palmira - CC Llanogrande', leader: 'Alexander López López' },
-            { id: 180, co: '508', zoneId: 4, name: 'QST 508 - Sabaneta - Cc Mayorca', leader: 'Andrea Bañol' },
-            { id: 181, co: '509', zoneId: 5, name: 'QST 509 - Cucuta - Cc Jardin Plaza', leader: 'Fabian Sanchez' },
-            { id: 182, co: '510', zoneId: 2, name: 'QST510 - YUMBO - CC UNICO', leader: 'Alexander López López' },
         ];
 
         // Base Oficial: Todos los PDVs y Zonas en 0% (Sin datos de prueba)
@@ -1970,23 +1961,24 @@ const SEED_PDVS = [
         function findPDVMatch(rawText, rawCo, rawLeader) {
             if (!rawText && !rawCo) return null;
             const textClean = String(rawText || '').trim().toLowerCase();
+            if (textClean.includes('qst')) return null; // Los PDVs QST no participan en el concurso
+
             const coClean = String(rawCo || '').replace(/[^0-9]/g, '');
             const leaderClean = String(rawLeader || '').trim().toLowerCase();
 
-            // Detectar prefijo y número en rawText (ej: "FQ006 - Florida - Valle del Cauca", "Q023 - Barranquilla", "QST505")
-            const textCodeMatch = textClean.match(/^(qst|fq|q|n)\s*0*(\d+)/i);
+            // Detectar prefijo y número en rawText (ej: "FQ006 - Florida - Valle del Cauca", "Q023 - Barranquilla")
+            const textCodeMatch = textClean.match(/^(fq|q|n)\s*0*(\d+)/i);
             let targetPrefix = textCodeMatch ? textCodeMatch[1].toLowerCase() : null;
             let targetNum = textCodeMatch ? parseInt(textCodeMatch[2], 10) : (coClean ? parseInt(coClean, 10) : null);
 
             if (!targetPrefix) {
                 if (textClean.includes('franquicia') || textClean.startsWith('fq')) targetPrefix = 'fq';
-                else if (textClean.startsWith('qst')) targetPrefix = 'qst';
                 else if (textClean.startsWith('q')) targetPrefix = 'q';
             }
 
             if (targetNum !== null) {
                 const candidates = SEED_PDVS.filter(p => {
-                    const pCodeMatch = p.name.toLowerCase().match(/^(qst|fq|q|n)\s*0*(\d+)/i);
+                    const pCodeMatch = p.name.toLowerCase().match(/^(fq|q|n)\s*0*(\d+)/i);
                     const pNum = pCodeMatch ? parseInt(pCodeMatch[2], 10) : (p.co ? parseInt(p.co, 10) : null);
                     const pPrefix = pCodeMatch ? pCodeMatch[1].toLowerCase() : (p.name.toLowerCase().startsWith('fq') ? 'fq' : 'q');
                     
@@ -2111,6 +2103,7 @@ const SEED_PDVS = [
                             const rawLider = liderColIdx !== -1 ? String(row[liderColIdx] || '').trim() : '';
 
                             if (!rawName && !rawCO) continue;
+                            if (rawName.toLowerCase().includes('qst')) continue; // Excluir QST (no participan en concurso)
 
                             const pptoVal = parseNumeric(row[pptoColIdx]);
                             const ventaVal = parseNumeric(row[ventaColIdx]);
