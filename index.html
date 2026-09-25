@@ -220,70 +220,77 @@
 <body class="theme-light min-h-screen flex flex-col text-sm">
 
     <!-- Header Navigation -->
-    <header class="glass-header sticky top-0 z-50 transition-colors backdrop-blur-md">
-        <div class="max-w-7xl mx-auto px-4 py-3 flex flex-col md:flex-row justify-between items-center gap-4">
-            <!-- Brand & Squadron Badge -->
-            <div class="flex items-center gap-3">
-                <div class="bg-gradient-to-br from-amber-500 to-red-600 text-white font-black text-lg px-3 py-1.5 rounded-lg shadow-md flex items-center gap-2 tracking-wider">
-                    <span>✈️</span>
-                    <span>QUEST NCS</span>
+    <header class="glass-header sticky top-0 z-50 transition-colors backdrop-blur-md border-b border-gray-200 dark:border-navy-800">
+        <div class="w-full max-w-[98%] 2xl:max-w-[1800px] mx-auto px-3 sm:px-6 py-2 flex flex-col xl:flex-row justify-between items-center gap-3">
+            <!-- 1. Brand & Campaign Dates (Ubicado a la izquierda donde marcó el usuario) -->
+            <div class="flex flex-col items-center xl:items-start gap-1.5 shrink-0">
+                <div class="flex items-center gap-2.5">
+                    <div class="bg-gradient-to-br from-amber-500 to-red-600 text-white font-black text-sm sm:text-base px-3 py-1.5 rounded-lg shadow-md flex items-center gap-2 tracking-wider">
+                        <span>✈️</span>
+                        <span>QUEST NCS</span>
+                    </div>
+                    <div class="text-[11px] font-black uppercase tracking-wider text-gray-500 dark:text-gray-400 border-l border-gray-300 dark:border-gray-700 pl-2.5 leading-tight">
+                        Operación<br/>Aniversario
+                    </div>
                 </div>
-                <div class="hidden sm:block text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 border-l border-gray-300 dark:border-gray-700 pl-3">
-                    Operación Aniversario
+                <!-- Insignia de Fecha Oficial del Concurso -->
+                <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg bg-amber-500/15 dark:bg-amber-400/20 border border-amber-500/30 text-amber-800 dark:text-amber-300 text-[11px] font-black tracking-wide uppercase shadow-2xs">
+                    <span>🗓️</span>
+                    <span>Del 23 de Sept al 05 de Octubre</span>
                 </div>
             </div>
 
-            <!-- Campaign Title -->
-            <div class="text-center flex-grow">
-                <h1 class="text-xl sm:text-2xl md:text-3xl font-black uppercase tracking-tight md:tracking-wide text-gray-900 dark:text-white">
+            <!-- 2. Campaign Title (Center) -->
+            <div class="text-center flex-grow px-2">
+                <h1 class="text-lg sm:text-xl lg:text-2xl font-black uppercase tracking-tight text-gray-900 dark:text-white leading-tight">
                     Conquista tu Zona en Aniversario
                 </h1>
-                <p class="text-gray-600 dark:text-gray-400 text-xs font-medium uppercase tracking-wider mt-0.5" id="campaign-subtitle">
+                <p class="text-gray-600 dark:text-gray-400 text-[11px] sm:text-xs font-semibold uppercase tracking-wider mt-0.5" id="campaign-subtitle">
                     Cumple al 100% con tu Escuadrón de combate y llévate el botín
                 </p>
-                <div class="mt-1.5 flex items-center justify-center">
-                    <span class="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-amber-500/15 dark:bg-amber-400/20 border border-amber-500/30 text-amber-700 dark:text-amber-300 text-[11px] font-black tracking-wide uppercase shadow-xs">
-                        <span>🗓️</span>
-                        <span>Del 23 de Sept al 05 de Octubre</span>
-                    </span>
-                </div>
             </div>
 
-            <!-- Controls: Cut Selector, New Cut & Theme Switcher & Auth Roles -->
-            <div class="flex items-center gap-2">
-                <!-- Role / Auth Badge & Action -->
-                <div id="auth-controls" class="flex items-center gap-1.5">
-                    <!-- Populated dynamically by updateAuthUI() -->
+            <!-- 3. Controls & Action Buttons (Right) - Reorganizados para encajar 100% en la pantalla -->
+            <div class="flex flex-col items-center xl:items-end gap-1.5 shrink-0 w-full xl:w-auto">
+                <!-- Fila Superior: Perfil Maestro, Tema e Indicador Cloud -->
+                <div class="flex flex-wrap items-center justify-center xl:justify-end gap-1.5">
+                    <!-- Role / Auth Badge & Action -->
+                    <div id="auth-controls" class="flex items-center gap-1.5">
+                        <!-- Populated dynamically by updateAuthUI() -->
+                    </div>
+
+                    <!-- Theme Toggle Button -->
+                    <button id="theme-toggle-btn" onclick="toggleTheme()" title="Cambiar tema visual" class="px-2.5 py-1.5 rounded-lg bg-gray-200 dark:bg-navy-800 text-gray-800 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-navy-700 transition font-bold text-xs shadow-xs flex items-center gap-1">
+                        <span id="theme-icon">🌙</span>
+                        <span class="text-xs font-semibold" id="theme-text">Modo Hangar</span>
+                    </button>
+
+                    <!-- Cloud Sync Status Badge -->
+                    <div id="cloud-sync-badge" class="flex items-center gap-1.5 text-[11px] font-bold px-2 py-1 rounded-lg border bg-gray-200 dark:bg-navy-800 text-gray-500 border-gray-300 dark:border-navy-700" title="Estado de sincronización en la nube">
+                        <span id="cloud-dot" class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
+                        <span id="cloud-status-text">Conectando...</span>
+                    </div>
                 </div>
 
-                <!-- Theme Toggle Button -->
-                <button id="theme-toggle-btn" onclick="toggleTheme()" title="Cambiar tema visual" class="p-2 rounded-lg bg-gray-200 dark:bg-navy-800 text-gray-800 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-navy-700 transition font-bold text-sm shadow-sm flex items-center gap-1.5">
-                    <span id="theme-icon">🌙</span>
-                    <span class="hidden lg:inline text-xs font-semibold" id="theme-text">Modo Hangar</span>
-                </button>
+                <!-- Fila Inferior: Selector de Cortes, Eliminar y Nuevo Corte -->
+                <div class="flex flex-wrap items-center justify-center xl:justify-end gap-1.5">
+                    <!-- Cut Selector (con ancho máximo controlado para evitar desbordes) -->
+                    <select id="cut-selector" class="max-w-[210px] sm:max-w-[280px] bg-white dark:bg-navy-900 border border-gray-300 dark:border-navy-700 text-gray-900 dark:text-white text-xs font-bold p-1.5 rounded-lg shadow-xs outline-none focus:ring-2 focus:ring-amber-500 truncate cursor-pointer">
+                        <!-- Populated by JS -->
+                    </select>
 
-                <!-- Cloud Sync Status Badge -->
-                <div id="cloud-sync-badge" class="hidden sm:flex items-center gap-1.5 text-[11px] font-bold px-2.5 py-1.5 rounded-lg border bg-gray-200 dark:bg-navy-800 text-gray-500 border-gray-300 dark:border-navy-700" title="Estado de sincronización en la nube">
-                    <span id="cloud-dot" class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
-                    <span id="cloud-status-text">Conectando...</span>
+                    <!-- Delete Cut Button (Solo Maestro) -->
+                    <button id="delete-cut-btn" onclick="deleteCurrentCut()" class="bg-red-500/20 hover:bg-red-500 text-red-700 dark:text-red-300 hover:text-white border border-red-500/40 font-bold text-xs px-2.5 py-1.5 rounded-lg shadow-xs transition items-center gap-1 hidden" title="Eliminar este corte de la nube y del sistema">
+                        <span>🗑️</span>
+                        <span>Eliminar</span>
+                    </button>
+
+                    <!-- New Cut Button (Solo Maestro) -->
+                    <button id="new-cut-btn" onclick="openModal()" class="bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white font-black text-xs px-3.5 py-1.5 rounded-lg shadow-md hover:shadow-lg transition items-center gap-1 whitespace-nowrap hidden">
+                        <span class="text-sm font-black leading-none">+</span>
+                        <span>Nuevo Corte</span>
+                    </button>
                 </div>
-
-                <!-- Cut Selector -->
-                <select id="cut-selector" class="bg-white dark:bg-navy-900 border border-gray-300 dark:border-navy-700 text-gray-900 dark:text-white text-xs sm:text-sm font-semibold p-2 rounded-lg shadow-sm outline-none focus:ring-2 focus:ring-amber-500">
-                    <!-- Populated by JS -->
-                </select>
-
-                <!-- Delete Cut Button (Solo Maestro) -->
-                <button id="delete-cut-btn" onclick="deleteCurrentCut()" class="bg-red-500/20 hover:bg-red-500 text-red-700 dark:text-red-300 hover:text-white border border-red-500/40 font-bold text-xs p-2 rounded-lg shadow-xs transition items-center gap-1 hidden" title="Eliminar este corte de la nube y del sistema">
-                    <span>🗑️</span>
-                    <span class="hidden xl:inline">Eliminar</span>
-                </button>
-
-                <!-- New Cut Button (Solo Maestro) -->
-                <button id="new-cut-btn" onclick="openModal()" class="bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white font-bold text-xs sm:text-sm px-3.5 py-2 rounded-lg shadow-md hover:shadow-lg transition items-center gap-1 hidden">
-                    <span>+</span>
-                    <span>Nuevo Corte</span>
-                </button>
             </div>
         </div>
     </header>
