@@ -2104,6 +2104,7 @@ const SEED_PDVS = [
 
                             if (!rawName && !rawCO) continue;
                             if (rawName.toLowerCase().includes('qst')) continue; // Excluir QST (no participan en concurso)
+                            if (rawName.toLowerCase().includes('total') || rawCO.toLowerCase().includes('total')) continue;
 
                             const pptoVal = parseNumeric(row[pptoColIdx]);
                             const ventaVal = parseNumeric(row[ventaColIdx]);
@@ -2217,6 +2218,8 @@ const SEED_PDVS = [
                         const rawName = String(row[nameCol !== -1 ? nameCol : 0] || '').trim();
                         const rawCO = coCol !== -1 ? String(row[coCol] || '').trim() : '';
                         const rawLider = liderCol !== -1 ? String(row[liderCol] || '').trim() : '';
+
+                        if (rawName.toLowerCase().includes('total') || rawCO.toLowerCase().includes('total')) continue;
 
                         const pVal = parseNumeric(row[pptoCol]);
                         const vVal = parseNumeric(row[ventaCol]);
