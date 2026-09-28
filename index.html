@@ -386,34 +386,34 @@
                 </div>
 
                 <!-- Arena Body: Altura amplia y padding-top generoso para que las puntas de los aviones queden 100% visibles -->
-                <div class="relative w-full flex items-end pt-28 pb-4" style="min-height: 600px;">
+                <div class="relative w-full flex items-end pt-28 pb-4" style="min-height: 640px;">
                     
                     <!-- Background Altitude Guidelines (z-index: 2, detrás de las barras) -->
                     <div class="absolute inset-0 pointer-events-none z-[2]">
-                        <div class="altitude-guideline border-b-2 border-dashed border-amber-400/50 dark:border-yellow-400/40" style="bottom: 430px;"></div>
-                        <div class="altitude-guideline border-b-2 border-solid border-emerald-500/60 dark:border-emerald-400/60" style="bottom: 380px;"></div>
-                        <div class="altitude-guideline border-b-2 border-dashed border-sky-400/40 dark:border-sky-400/30" style="bottom: 330px;"></div>
-                        <div class="altitude-guideline border-b border-dotted border-gray-400/30 dark:border-gray-600/30" style="bottom: 210px;"></div>
+                        <div class="altitude-guideline border-b-2 border-dashed border-amber-400/50 dark:border-yellow-400/40" style="bottom: 525px;"></div>
+                        <div class="altitude-guideline border-b-2 border-solid border-emerald-500/60 dark:border-emerald-400/60" style="bottom: 485px;"></div>
+                        <div class="altitude-guideline border-b-2 border-dashed border-sky-400/40 dark:border-sky-400/30" style="bottom: 445px;"></div>
+                        <div class="altitude-guideline border-b border-dotted border-gray-400/30 dark:border-gray-600/30" style="bottom: 310px;"></div>
                     </div>
 
                     <!-- Left Altimeter Axis Labels (Completamente separado a la izquierda, nunca tapado) -->
-                    <div class="w-36 sm:w-44 flex-shrink-0 relative z-[35] pr-3 pointer-events-none hidden md:block" style="height: 540px;">
-                        <div class="absolute left-0" style="bottom: 418px;">
+                    <div class="w-36 sm:w-44 flex-shrink-0 relative z-[35] pr-3 pointer-events-none hidden md:block" style="height: 560px;">
+                        <div class="absolute left-0" style="bottom: 513px;">
                             <span class="text-[10px] font-black uppercase px-2.5 py-1 rounded-md bg-amber-500 text-white shadow-md flex items-center gap-1.5 tracking-wider border border-amber-300/40">
                                 🔥 105% AFTERBURNER
                             </span>
                         </div>
-                        <div class="absolute left-0" style="bottom: 368px;">
+                        <div class="absolute left-0" style="bottom: 473px;">
                             <span class="text-[10px] font-black uppercase px-2.5 py-1 rounded-md bg-emerald-500 text-white shadow-md flex items-center gap-1.5 tracking-wider border border-emerald-300/40">
                                 🎯 100% META COMBATE
                             </span>
                         </div>
-                        <div class="absolute left-0" style="bottom: 318px;">
+                        <div class="absolute left-0" style="bottom: 433px;">
                             <span class="text-[10px] font-bold uppercase px-2.5 py-1 rounded-md bg-sky-500 text-white shadow-md flex items-center gap-1.5 tracking-wider border border-sky-300/40">
                                 ⚡ 95% MÍNIMO
                             </span>
                         </div>
-                        <div class="absolute left-0" style="bottom: 198px;">
+                        <div class="absolute left-0" style="bottom: 298px;">
                             <span class="text-[10px] font-bold uppercase px-2.5 py-1 rounded-md bg-gray-500 text-white shadow-xs tracking-wider">
                                 50% BASELINE
                             </span>
@@ -1428,10 +1428,28 @@ const SEED_PDVS = [
                 return;
             }
 
-            // Altura escalada para que el avión más alto quede holgadamente dentro del contenedor sin cortarse
+            // Altura escalada y calibrada con exactitud milimétrica respecto a las directrices de combate
+            // 50% Baseline = 310px | 95% Mínimo = 445px | 100% Meta = 485px | 105% Afterburner = 525px
+            function getTargetPlaneY(compliance) {
+                const c = Math.max(compliance, 0);
+                if (c <= 50) {
+                    return 241 + (c / 50) * (310 - 241);
+                } else if (c <= 95) {
+                    return 310 + ((c - 50) / 45) * (445 - 310);
+                } else if (c <= 100) {
+                    return 445 + ((c - 95) / 5) * (485 - 445);
+                } else if (c <= 105) {
+                    return 485 + ((c - 100) / 5) * (525 - 485);
+                } else {
+                    const extra = Math.min(c - 105, 20);
+                    return 525 + (extra / 20) * 55;
+                }
+            }
+
             const calcBarHeight = (compliance) => {
-                const capped = Math.min(Math.max(compliance, 0), 125);
-                return Math.round(25 + (capped / 120) * 245);
+                const targetY = getTargetPlaneY(compliance);
+                const h = Math.round(targetY - 216);
+                return Math.max(h, 25);
             };
 
             let html = '';
@@ -1472,7 +1490,7 @@ const SEED_PDVS = [
                     </div>
 
                     <!-- 2. Perspective Runway Ramp (Trapezoid connecting bar to front card) -->
-                    <div class="w-full h-14 sm:h-16 relative -mt-[1px]">
+                    <div class="w-full h-14 relative -mt-[1px]">
                         <svg class="w-full h-full block" viewBox="0 0 100 60" preserveAspectRatio="none">
                             <defs>
                                 <linearGradient id="ramp-grad-${item.id}" x1="0" y1="0" x2="0" y2="1">
@@ -1490,7 +1508,7 @@ const SEED_PDVS = [
 
                     <!-- 3. Front Option Card (Sin valores monetarios) -->
                     <div class="front-card w-full rounded-b-lg p-2.5 text-white flex flex-col justify-between -mt-[1px]"
-                         style="background-color: ${item.color}; min-height: ${item.isPDV ? '105px' : '115px'};">
+                         style="background-color: ${item.color}; min-height: 115px; height: 115px;">
                         
                         <!-- Title & Rank -->
                         <div>
