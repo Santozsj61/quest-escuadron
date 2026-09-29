@@ -763,10 +763,10 @@ const SEED_PDVS = [
             { id: 68, co: '102', zoneId: 9, name: 'FQ102 - Apartado - CC Plaza del Rio', leader: 'Julian Andres Marin' },
             { id: 69, co: '103', zoneId: 10, name: 'FQ103 - La Plata - Huila', leader: 'Anderson Fabian Gelvez Gonzalez' },
             { id: 70, co: '104', zoneId: 3, name: 'FQ104 - Piendamo - Cauca', leader: 'Yoryani Valderrama' },
-            { id: 71, co: '105', zoneId: 1, name: 'FQ105 - Montería, Córdoba', leader: 'Carlos Andres Correa Baron' },
+            { id: 71, co: '105', zoneId: 1, name: 'FQ105 - Montería - Córdoba', leader: 'Carlos Andres Correa Baron' },
             { id: 72, co: '106', zoneId: 2, name: 'FQ106 - Sevilla - Valle del Cauca', leader: 'Alexander López López' },
             { id: 73, co: '107', zoneId: 11, name: 'FQ107 - Orito - Putumayo', leader: 'Jose Raquel Salazar' },
-            { id: 74, co: '108', zoneId: 5, name: 'FQ108 - San Alberto, Cesar', leader: 'Fabian Sanchez' },
+            { id: 74, co: '108', zoneId: 5, name: 'FQ108 - San Alberto - Cesar', leader: 'Fabian Sanchez' },
             { id: 75, co: '110', zoneId: 10, name: 'FQ110 San Vicente del Caguan - Caqueta', leader: 'Anderson Fabian Gelvez Gonzalez' },
             { id: 76, co: '111', zoneId: 2, name: 'FQ111 - Tulua - CC Super Centro la 14', leader: 'Alexander López López' },
             { id: 77, co: '112', zoneId: 2, name: 'Fq 112 - Yumbo Centro', leader: 'Alexander López López' },
@@ -2666,10 +2666,13 @@ const SEED_PDVS = [
             let parsed = [];
 
             lines.forEach(line => {
-                const parts = line.split(/[,;\t]/);
-                if (parts.length >= 2) {
-                    const itemStr = parts[0].trim().toLowerCase();
-                    const compStr = parts[1].replace(/[^0-9.,-]/g, '').replace(',', '.');
+                const trimLine = line.trim();
+                if (!trimLine) return;
+
+                const lastSepIdx = Math.max(trimLine.lastIndexOf(','), trimLine.lastIndexOf(';'), trimLine.lastIndexOf('\t'));
+                if (lastSepIdx !== -1) {
+                    const itemStr = trimLine.substring(0, lastSepIdx).trim().toLowerCase();
+                    const compStr = trimLine.substring(lastSepIdx + 1).replace(/[^0-9.,-]/g, '').replace(',', '.');
                     let comp = parseFloat(compStr);
 
                     if (itemStr && !isNaN(comp)) {
