@@ -321,7 +321,7 @@
             <div class="flex items-center gap-2 flex-wrap">
                 <span class="text-xs font-black uppercase tracking-wider text-gray-500 dark:text-gray-400">Escuadrón a Visualizar:</span>
                 <select id="zone-scope-selector" onchange="changeZoneScope(this.value)" class="bg-white dark:bg-navy-900 border border-gray-300 dark:border-navy-700 text-gray-900 dark:text-white text-xs sm:text-sm font-bold py-1.5 px-3 rounded-lg shadow-xs outline-none focus:ring-2 focus:ring-amber-500">
-                    <option value="all">🌐 Vista Nacional (11 Zonas / 181 PDVs)</option>
+                    <option value="all">🌐 Vista Nacional (11 Zonas / 172 PDVs)</option>
                     <!-- Zone options injected by JS -->
                 </select>
                 <span class="inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-1 rounded-lg bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30">
@@ -569,7 +569,7 @@
 
                 <div class="bg-gray-50 dark:bg-navy-950 p-4 border-2 border-dashed border-gray-300 dark:border-navy-700 rounded-xl text-center">
                     <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-bold text-[11px] mb-2 border border-emerald-500/30">
-                        <span>🎯 Presupuestos Oficiales Precargados: 23 al 30 de Septiembre (173 PDVs)</span>
+                        <span>🎯 Presupuestos Oficiales Precargados: 23 al 30 de Septiembre (172 PDVs)</span>
                     </div>
                     <p class="mb-2 font-bold text-gray-700 dark:text-gray-300">Opción A: Subir Archivo Excel o CSV</p>
                     <input type="file" id="file-upload" accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel" class="block w-full text-xs text-gray-500 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-amber-500 file:text-white hover:file:bg-amber-600 cursor-pointer">
@@ -847,7 +847,6 @@ const SEED_PDVS = [
             { id: 152, co: '129', zoneId: 8, name: 'Q129-Bogota-cc plaza de las americas', leader: 'Andrea Johana Perez Fonseca' },
             { id: 153, co: '131', zoneId: 5, name: 'Q131-Cucuta-CC Jardin Plaza', leader: 'Fabian Sanchez' },
             { id: 154, co: '133', zoneId: 3, name: 'Q133-Popayan-Cc Terra Plaza', leader: 'Yoryani Valderrama' },
-            { id: 155, co: '134', zoneId: 7, name: 'Q134 - Cali - Cc Cosmocentro', leader: 'Anyela Gonzalez Castrillon' },
             { id: 156, co: '135', zoneId: 11, name: 'Q135 - Pasto - Centro', leader: 'Jose Raquel Salazar' },
             { id: 157, co: '136', zoneId: 4, name: 'Q136 Yopal-Centro', leader: 'Andrea Bañol' },
             { id: 158, co: '138', zoneId: 6, name: 'Q138 Manizales - CC Fundadores', leader: 'Andres Felipe Osorio' },
@@ -1024,7 +1023,6 @@ const SEED_PDVS = [
             152: 58934515,
             153: 165802079,
             154: 98055812,
-            155: 90742523,
             156: 85853613,
             157: 118315343,
             158: 53546260,
@@ -1383,7 +1381,7 @@ const SEED_PDVS = [
 
         function populateZoneScopeSelector() {
             const select = document.getElementById('zone-scope-selector');
-            let opts = `<option value="all">🌐 Vista Nacional (11 Zonas / 181 PDVs)</option>`;
+            let opts = `<option value="all">🌐 Vista Nacional (11 Zonas / ${SEED_PDVS.length} PDVs)</option>`;
             SEED_ZONES.forEach(z => {
                 const pdvCount = SEED_PDVS.filter(p => p.zoneId === z.id).length;
                 opts += `<option value="${z.id}">${z.emoji} ${z.name} - ${z.leader} (${pdvCount} PDVs)</option>`;
@@ -1524,14 +1522,14 @@ const SEED_PDVS = [
             if (currentZoneScope === 'all') {
                 breadcrumb.classList.add('hidden');
                 arenaLeft.textContent = 'ALTÍMETRO DE COMBATE // NACIONAL';
-                arenaCenter.textContent = 'ESCUADRÓN NACIONAL // 11 ZONAS LÍDERES // 181 TIENDAS';
+                arenaCenter.textContent = `ESCUADRÓN NACIONAL // 11 ZONAS LÍDERES // ${SEED_PDVS.length} TIENDAS`;
                 runwayStatus.textContent = 'PISTA ACTIVA // CABECERA NACIONAL';
                 runwayFormation.textContent = 'ESCUADRONES EN FORMACIÓN VERTICAL';
                 tabPodioTitle.textContent = 'Podio de Honor (Top 2)';
                 podiumHeading.innerHTML = '<span>🏆</span> <span>Podio de Honor Nacional (Top 2)</span> <span>🥈</span>';
                 podiumSubheading.textContent = 'Los 2 comandantes de zona con mayor altitud en cumplimiento en este corte';
                 tableHeading.textContent = '📊 Reporte Operacional Nacional';
-                tableSubheading.textContent = 'Ranking consolidado de las 11 zonas estratégicas (181 PDVs)';
+                tableSubheading.textContent = `Ranking consolidado de las 11 zonas estratégicas (${SEED_PDVS.length} PDVs)`;
                 tableColName.textContent = 'Zona / Escuadrón ↕';
                 tableColLeader.textContent = 'Comandante ↕';
             } else {
@@ -2190,7 +2188,7 @@ const SEED_PDVS = [
         function findPDVMatch(rawText, rawCo, rawLeader) {
             if (!rawText && !rawCo) return null;
             const textClean = String(rawText || '').trim().toLowerCase();
-            if (textClean.includes('qst')) return null; // Los PDVs QST no participan en el concurso
+            if (textClean.includes('qst') || textClean.includes('cosmocentro') || (textClean.includes('134') && textClean.includes('cali'))) return null; // Excluir QST y PDVs cerrados (ej. Q134 Cosmocentro)
 
             const coClean = String(rawCo || '').replace(/[^0-9]/g, '');
             const leaderClean = String(rawLeader || '').trim().toLowerCase();
