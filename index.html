@@ -560,9 +560,12 @@
                 </div>
 
                 <div class="bg-gray-50 dark:bg-navy-950 p-4 border-2 border-dashed border-gray-300 dark:border-navy-700 rounded-xl text-center">
+                    <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-bold text-[11px] mb-2 border border-emerald-500/30">
+                        <span>🎯 Presupuesto Oficial Precargado (23 al 30 Sept - 173 PDVs)</span>
+                    </div>
                     <p class="mb-2 font-bold text-gray-700 dark:text-gray-300">Opción A: Subir Archivo Excel o CSV</p>
                     <input type="file" id="file-upload" accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel" class="block w-full text-xs text-gray-500 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-amber-500 file:text-white hover:file:bg-amber-600 cursor-pointer">
-                    <p class="text-[10px] text-gray-400 mt-2">Compatible con Excel de referencias Quest (unifica automáticamente presupuestos y ventas por PDV) o formato [PDV, %]</p>
+                    <p class="text-[10px] text-emerald-600 dark:text-emerald-400 mt-2 font-medium">⚡ Sube directamente "Consursos y base actualizada" (solo ventas). La app calcula de inmediato el % de cumplimiento contra la meta oficial de la campaña.</p>
                 </div>
 
                 <div>
@@ -856,6 +859,193 @@ const SEED_PDVS = [
             { id: 172, co: '156', zoneId: 4, name: 'Q156 - Medellin - CC Santa Fe', leader: 'Andrea Bañol' },
             { id: 173, co: '157', zoneId: 5, name: 'Q157 - Riohacha - CC Viva Wajira', leader: 'Fabian Sanchez' },
         ];
+
+        // Presupuesto Oficial Precargado Campaña Aniversario (23 al 30 de Septiembre)
+        const STORE_CAMPAIGN_BUDGET = {
+            1: 38763313,
+            2: 113109594,
+            3: 66071010,
+            4: 46693495,
+            5: 49628980,
+            6: 83748670,
+            7: 118996443,
+            8: 54122230,
+            9: 84094643,
+            10: 40169512,
+            11: 163990727,
+            12: 44315614,
+            13: 88795076,
+            14: 128208659,
+            15: 62112002,
+            16: 97290324,
+            17: 61956147,
+            18: 79924482,
+            19: 81793947,
+            20: 116368516,
+            21: 67752221,
+            22: 27902171,
+            23: 60935234,
+            24: 34676111,
+            25: 36313478,
+            26: 45859545,
+            27: 56942501,
+            28: 30017396,
+            29: 34898199,
+            30: 60818885,
+            31: 37966066,
+            32: 73945771,
+            33: 33283892,
+            34: 51173920,
+            35: 29500654,
+            36: 33092700,
+            37: 34874065,
+            38: 69204547,
+            39: 49441035,
+            40: 81987265,
+            41: 62210947,
+            42: 51330714,
+            43: 58930328,
+            44: 54632028,
+            45: 29570441,
+            46: 33157992,
+            47: 27121594,
+            48: 30969772,
+            49: 43523006,
+            50: 88332408,
+            51: 43492643,
+            52: 44632367,
+            53: 29744639,
+            54: 51945845,
+            55: 62847873,
+            56: 39885740,
+            57: 43110748,
+            58: 42390883,
+            59: 49023870,
+            60: 19383085,
+            61: 39236854,
+            62: 33613899,
+            63: 22035660,
+            64: 28945635,
+            65: 27764669,
+            66: 41895828,
+            67: 69089361,
+            68: 30538689,
+            69: 39556925,
+            70: 23048557,
+            71: 20861049,
+            72: 72348499,
+            73: 25210676,
+            74: 22559131,
+            75: 43838356,
+            76: 107028401,
+            77: 37398891,
+            78: 54117765,
+            79: 70059696,
+            80: 118890135,
+            81: 37398891,
+            82: 11053473,
+            83: 62904355,
+            84: 69141675,
+            85: 58384633,
+            86: 169802364,
+            87: 138852811,
+            88: 201669869,
+            89: 129629443,
+            90: 175732246,
+            91: 307740691,
+            92: 108922418,
+            93: 277270820,
+            94: 300281783,
+            95: 257757557,
+            96: 343137787,
+            97: 163432504,
+            98: 70215885,
+            99: 342670556,
+            100: 161078710,
+            101: 75879496,
+            102: 172905862,
+            103: 95903162,
+            104: 140608514,
+            105: 143455496,
+            106: 131859720,
+            107: 158476570,
+            108: 164396417,
+            109: 211884415,
+            110: 168927704,
+            111: 157465481,
+            112: 98033440,
+            113: 105899945,
+            114: 136394836,
+            115: 80629295,
+            116: 66641628,
+            117: 159762638,
+            118: 98276405,
+            119: 176873127,
+            120: 123278409,
+            121: 151141166,
+            122: 204010655,
+            123: 101383721,
+            124: 128475681,
+            125: 100000173,
+            126: 136302306,
+            127: 162712759,
+            128: 127556613,
+            129: 136130960,
+            130: 91497354,
+            131: 94264046,
+            132: 60889139,
+            133: 63485926,
+            134: 159896511,
+            135: 137846913,
+            136: 142696361,
+            137: 162238040,
+            138: 189375644,
+            139: 82235862,
+            140: 80385741,
+            141: 137849174,
+            142: 148133254,
+            143: 121662710,
+            144: 127787502,
+            145: 139929922,
+            146: 139807264,
+            147: 65988673,
+            148: 110783186,
+            149: 81932166,
+            150: 74820085,
+            151: 189203189,
+            152: 58934515,
+            153: 165802079,
+            154: 98055812,
+            155: 90742523,
+            156: 85853613,
+            157: 118315343,
+            158: 53546260,
+            159: 125438015,
+            160: 108512711,
+            161: 77787121,
+            162: 114474131,
+            163: 51411677,
+            164: 62671802,
+            165: 45294645,
+            166: 88643817,
+            167: 45641787,
+            168: 67352677,
+            169: 88952258,
+            170: 91200189,
+            171: 102654493,
+            172: 81035118,
+            173: 70116540,
+        };
+        function getStoreBudget(pdvId) {
+            try {
+                const stored = localStorage.getItem('questStoreBudgets');
+                if (stored) {
+                    const parsed = JSON.parse(stored);
+                    if (parsed && parsed[pdvId] !== undefined) return Number(parsed[pdvId]);
+                }
+            } catch(e) {}
+            return STORE_CAMPAIGN_BUDGET[pdvId] || 0;
+        }
 
         // Base Oficial: Todos los PDVs y Zonas en 0% (Sin datos de prueba)
         const initialPdvData = {};
@@ -2068,11 +2258,46 @@ const SEED_PDVS = [
                 try {
                     const data = new Uint8Array(e.target.result);
                     const workbook = XLSX.read(data, {type: 'array'});
-                    const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
-                    const rows = XLSX.utils.sheet_to_json(firstSheet, {header: 1, defval: ''});
+                    
+                    if (!workbook.SheetNames || workbook.SheetNames.length === 0) {
+                        showToast('El archivo no contiene hojas de cálculo válidas.', 'error');
+                        return;
+                    }
+
+                    // 1. Detección inteligente de la mejor hoja de cálculo
+                    // Prioridad: "Base gnral", "Base general", "Base", "Ventas", "Venta", "Consolidado", "Resumen"
+                    const priorityNames = ['base gnral', 'base general', 'base', 'ventas', 'venta', 'consolidado', 'resumen', 'corte'];
+                    let targetSheetName = workbook.SheetNames[0];
+
+                    for (const pName of priorityNames) {
+                        const found = workbook.SheetNames.find(s => s.trim().toLowerCase() === pName);
+                        if (found) {
+                            targetSheetName = found;
+                            break;
+                        }
+                    }
+
+                    // Si la primera hoja es de transacciones masivas (ej. Sheet 1 con 40k+ filas) y existe una hoja resumen de menos de 500 filas con ventas, preferir la resumen
+                    if (workbook.SheetNames.length > 1 && !priorityNames.includes(targetSheetName.toLowerCase())) {
+                        for (const sName of workbook.SheetNames) {
+                            const sheet = workbook.Sheets[sName];
+                            const rowsSample = XLSX.utils.sheet_to_json(sheet, {header: 1, range: 0, defval: ''});
+                            if (rowsSample.length > 0 && rowsSample.length <= 400) {
+                                const firstRowStr = (rowsSample[0] || []).map(c => String(c).toLowerCase().trim());
+                                if (firstRowStr.some(c => c.includes('nombre') || c.includes('tienda') || c.includes('c.o')) &&
+                                    firstRowStr.some(c => c.includes('venta') || c.includes('cumpli') || c.includes('%'))) {
+                                    targetSheetName = sName;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+
+                    const selectedSheet = workbook.Sheets[targetSheetName];
+                    const rows = XLSX.utils.sheet_to_json(selectedSheet, {header: 1, defval: ''});
                     
                     if (!rows || rows.length === 0) {
-                        showToast('El archivo está vacío.', 'error');
+                        showToast(`La hoja "${targetSheetName}" está vacía.`, 'error');
                         return;
                     }
 
@@ -2092,20 +2317,34 @@ const SEED_PDVS = [
                         
                         // Buscar columnas específicas de Quest
                         const foundDescCO = rowStr.findIndex(c => c.includes('desc. c.o') || c.includes('desc c.o') || c.includes('desc. co') || c.includes('desc co'));
-                        const foundName = foundDescCO !== -1 ? foundDescCO : rowStr.findIndex(c => c.includes('tienda') || c.includes('pdv') || c.includes('zona') || c.includes('regional') || c.includes('nombre') || c.includes('almacen') || c.includes('centro'));
+                        const foundName = foundDescCO !== -1 ? foundDescCO : rowStr.findIndex(c => 
+                            c.includes('nombre usuario') || c.includes('tienda') || c.includes('pdv') || 
+                            c.includes('zona') || c.includes('regional') || c.includes('nombre') || 
+                            c.includes('almacen') || c.includes('centro')
+                        );
                         const foundCO = rowStr.findIndex(c => c === 'c.o.' || c === 'c.o' || c === 'co' || c.includes('c.o.'));
                         const foundLider = rowStr.findIndex(c => c.includes('lider') || c.includes('líder') || c.includes('supervisor'));
                         
-                        // Presupuesto: Ppto Valor subtotal, Meta, Presupuesto
-                        const foundPpto = rowStr.findIndex(c => (c.includes('ppto') && c.includes('valor')) || c.includes('ppto valor subtotal') || c.includes('presupuesto') || c.includes('meta') || (c.includes('ppto') && !c.includes('cant')));
+                        // Presupuesto en pesos: Ppto Valor subtotal, Meta, Presupuesto (excluyendo "cant" o "unidades")
+                        const foundPpto = rowStr.findIndex(c => 
+                            ((c.includes('ppto') && c.includes('valor')) || c.includes('ppto valor subtotal') || c.includes('presupuesto') || c.includes('meta')) &&
+                            !c.includes('cant') && !c.includes('unid')
+                        );
                         
-                        // Venta real: Valor subtotal, Venta, Real (asegurando no tomar Ppto ni Facturas actual)
-                        const foundVenta = rowStr.findIndex(c => (c.includes('valor subtotal') && !c.includes('ppto')) || (c.includes('subtotal') && !c.includes('ppto') && !c.includes('cant')) || (c === 'venta') || (c.includes('venta') && !c.includes('cant') && !c.includes('ppto')) || (c.includes('real') && !c.includes('cant')));
+                        // Venta real: Valor subtotal, Venta, Ventas, Real
+                        const foundVenta = rowStr.findIndex(c => 
+                            ((c.includes('valor subtotal') && !c.includes('ppto')) || 
+                             (c.includes('subtotal') && !c.includes('ppto') && !c.includes('cant')) || 
+                             (c === 'venta') || (c === 'ventas') ||
+                             (c.includes('venta') && !c.includes('cant') && !c.includes('ppto') && !c.includes('post')) || 
+                             (c.includes('real') && !c.includes('cant'))) &&
+                            !c.includes('cant')
+                        );
                         
                         // Cumplimiento directo (%)
                         const foundComp = rowStr.findIndex(c => c.includes('cumpli') || c.includes('%') || c.includes('avance') || c.includes('ejecuc'));
 
-                        if ((foundName !== -1 || foundCO !== -1) && (foundComp !== -1 || (foundVenta !== -1 && foundPpto !== -1))) {
+                        if ((foundName !== -1 || foundCO !== -1) && (foundComp !== -1 || foundVenta !== -1 || foundPpto !== -1)) {
                             headerRowIdx = r;
                             nameColIdx = foundName !== -1 ? foundName : foundCO;
                             coColIdx = foundCO;
@@ -2120,10 +2359,17 @@ const SEED_PDVS = [
                     const startRow = headerRowIdx !== -1 ? headerRowIdx + 1 : 0;
                     let text = '';
 
-                    // CASO 1: Archivo con Ppto y Venta (Múltiples referencias SKU y Días del 23 al 30) -> UNIFICACIÓN GLOBAL POR PDV
+                    // CASO 1: Archivo con Ppto y Venta explícitos en columnas separadas (como Consursos 14)
                     if (pptoColIdx !== -1 && ventaColIdx !== -1) {
                         const pdvAgg = new Map();
+                        const zoneAgg = new Map();
                         let totalRows = 0;
+                        let totalPpto = 0;
+                        let totalVenta = 0;
+
+                        SEED_ZONES.forEach(z => {
+                            zoneAgg.set(z.id, { id: z.id, name: z.name, ppto: 0, venta: 0 });
+                        });
 
                         for (let r = startRow; r < rows.length; r++) {
                             const row = rows[r];
@@ -2134,44 +2380,136 @@ const SEED_PDVS = [
                             const rawLider = liderColIdx !== -1 ? String(row[liderColIdx] || '').trim() : '';
 
                             if (!rawName && !rawCO) continue;
-                            if (rawName.toLowerCase().includes('qst')) continue; // Excluir QST (no participan en concurso)
+                            if (rawName.toLowerCase().includes('qst')) continue; // Excluir QST
                             if (rawName.toLowerCase().includes('total') || rawCO.toLowerCase().includes('total')) continue;
 
                             const pptoVal = parseNumeric(row[pptoColIdx]);
                             const ventaVal = parseNumeric(row[ventaColIdx]);
 
                             const matched = findPDVMatch(rawName, rawCO, rawLider);
-                            const key = matched ? ('pdv_' + matched.id) : ('raw_' + (rawName || rawCO));
+                            if (!matched) continue;
 
+                            const key = matched.id;
                             if (!pdvAgg.has(key)) {
                                 pdvAgg.set(key, {
                                     matched: matched,
-                                    name: matched ? matched.name : (rawName || ('CO ' + rawCO)),
+                                    name: matched.name,
+                                    zoneId: matched.zoneId,
                                     ppto: 0,
-                                    venta: 0,
-                                    count: 0
+                                    venta: 0
                                 });
                             }
 
                             const item = pdvAgg.get(key);
                             item.ppto += pptoVal;
                             item.venta += ventaVal;
-                            item.count++;
                             totalRows++;
                         }
 
-                        // Generar líneas unificadas por PDV calculando el % de cumplimiento global
-                        // REGLA: No se muestran valores en pesos ($), solo el % de cumplimiento
+                        pdvAgg.forEach(item => {
+                            totalPpto += item.ppto;
+                            totalVenta += item.venta;
+                            if (zoneAgg.has(item.zoneId)) {
+                                const z = zoneAgg.get(item.zoneId);
+                                z.ppto += item.ppto;
+                                z.venta += item.venta;
+                            }
+                        });
+
+                        // Agregar Zonas ponderadas
+                        zoneAgg.forEach(z => {
+                            const comp = z.ppto > 0 ? Math.round((z.venta / z.ppto) * 1000) / 10 : 0;
+                            text += `${z.name}, ${comp}%\n`;
+                        });
+
+                        // Agregar PDVs
                         pdvAgg.forEach(item => {
                             const comp = item.ppto > 0 ? Math.round((item.venta / item.ppto) * 1000) / 10 : 0;
                             text += `${item.name}, ${comp}%\n`;
                         });
 
                         document.getElementById('manual-data').value = text;
-                        processData(); // Previsualizar automáticamente
-                        showToast(`⚡ ¡${pdvAgg.size} PDVs unificados globalmente (${totalRows} registros procesados)!`);
-                    } else {
-                        // CASO 2: Archivo tradicional con porcentaje directo
+                        processData();
+                        const nacComp = totalPpto > 0 ? Math.round((totalVenta / totalPpto) * 1000) / 10 : 0;
+                        showToast(`⚡ ¡${pdvAgg.size} PDVs procesados con Ppto y Venta! (Hoja: ${targetSheetName}, Avance Nacional: ${nacComp}%)`, 'success');
+                    } 
+                    // CASO 2: Archivo con SOLO VENTA (ej: "Consursos y base actualizada", hoja Base gnral)
+                    // -> Se calcula el % automáticamente contra el Presupuesto Oficial Precargado de la Campaña
+                    else if (ventaColIdx !== -1) {
+                        const pdvAgg = new Map();
+                        const zoneAgg = new Map();
+                        let totalRows = 0;
+                        let totalPpto = 0;
+                        let totalVenta = 0;
+
+                        SEED_ZONES.forEach(z => {
+                            zoneAgg.set(z.id, { id: z.id, name: z.name, ppto: 0, venta: 0 });
+                        });
+
+                        for (let r = startRow; r < rows.length; r++) {
+                            const row = rows[r];
+                            if (!row || row.length < 2) continue;
+
+                            const rawName = String(row[nameColIdx] || '').trim();
+                            const rawCO = coColIdx !== -1 ? String(row[coColIdx] || '').trim() : '';
+                            const rawLider = liderColIdx !== -1 ? String(row[liderColIdx] || '').trim() : '';
+
+                            if (!rawName && !rawCO) continue;
+                            if (rawName.toLowerCase().includes('qst')) continue;
+                            if (rawName.toLowerCase().includes('total') || rawCO.toLowerCase().includes('total')) continue;
+
+                            const ventaVal = parseNumeric(row[ventaColIdx]);
+                            const matched = findPDVMatch(rawName, rawCO, rawLider);
+                            if (!matched) continue;
+
+                            const key = matched.id;
+                            if (!pdvAgg.has(key)) {
+                                const pptoVal = getStoreBudget(matched.id);
+                                pdvAgg.set(key, {
+                                    matched: matched,
+                                    name: matched.name,
+                                    zoneId: matched.zoneId,
+                                    ppto: pptoVal,
+                                    venta: 0
+                                });
+                            }
+
+                            const item = pdvAgg.get(key);
+                            item.venta += ventaVal;
+                            totalRows++;
+                        }
+
+                        // Acumular por zona y total nacional
+                        pdvAgg.forEach(item => {
+                            totalPpto += item.ppto;
+                            totalVenta += item.venta;
+                            if (zoneAgg.has(item.zoneId)) {
+                                const z = zoneAgg.get(item.zoneId);
+                                z.ppto += item.ppto;
+                                z.venta += item.venta;
+                            }
+                        });
+
+                        // Agregar Zonas ponderadas
+                        zoneAgg.forEach(z => {
+                            const comp = z.ppto > 0 ? Math.round((z.venta / z.ppto) * 1000) / 10 : 0;
+                            text += `${z.name}, ${comp}%\n`;
+                        });
+
+                        // Agregar PDVs
+                        pdvAgg.forEach(item => {
+                            const comp = item.ppto > 0 ? Math.round((item.venta / item.ppto) * 1000) / 10 : 0;
+                            text += `${item.name}, ${comp}%\n`;
+                        });
+
+                        document.getElementById('manual-data').value = text;
+                        processData();
+
+                        const nacComp = totalPpto > 0 ? Math.round((totalVenta / totalPpto) * 1000) / 10 : 0;
+                        showToast(`🎯 ¡${pdvAgg.size} PDVs calculados con presupuesto oficial precargado! (Hoja: ${targetSheetName}, Avance Nacional: ${nacComp}%)`, 'success');
+                    }
+                    // CASO 3: Archivo tradicional con porcentaje directo
+                    else {
                         for (let r = startRow; r < rows.length; r++) {
                             const row = rows[r];
                             if (!row || row.length < 2) continue;
@@ -2197,7 +2535,20 @@ const SEED_PDVS = [
 
                         document.getElementById('manual-data').value = text;
                         processData();
-                        showToast('Archivo Excel leído correctamente.');
+                        showToast(`Archivo Excel leído correctamente (Hoja: ${targetSheetName}).`);
+                    }
+
+                    // Autocompletar nombre de corte si está vacío
+                    const cutNameInput = document.getElementById('cut-name');
+                    if (!cutNameInput.value.trim()) {
+                        const now = new Date();
+                        const dayStr = String(now.getDate()).padStart(2, '0');
+                        const monthStr = String(now.getMonth() + 1).padStart(2, '0');
+                        cutNameInput.value = `Avance Campaña (${dayStr}/${monthStr})`;
+                    }
+                    const cutDateInput = document.getElementById('cut-date');
+                    if (!cutDateInput.value) {
+                        cutDateInput.value = new Date().toISOString().split('T')[0];
                     }
                 } catch(err) {
                     console.error('Error procesando archivo:', err);
@@ -2262,6 +2613,36 @@ const SEED_PDVS = [
                         }
                         const item = pdvAgg.get(key);
                         item.ppto += pVal;
+                        item.venta += vVal;
+                    }
+
+                    let cleanText = '';
+                    pdvAgg.forEach(item => {
+                        const comp = item.ppto > 0 ? Math.round((item.venta / item.ppto) * 1000) / 10 : 0;
+                        cleanText += `${item.name}, ${comp}%\n`;
+                    });
+                    document.getElementById('manual-data').value = cleanText;
+                } else if (ventaCol !== -1) {
+                    const pdvAgg = new Map();
+                    for (let r = 1; r < rows.length; r++) {
+                        const row = rows[r];
+                        if (!row || row.length < 2) continue;
+                        const rawName = String(row[nameCol !== -1 ? nameCol : 0] || '').trim();
+                        const rawCO = coCol !== -1 ? String(row[coCol] || '').trim() : '';
+                        const rawLider = liderCol !== -1 ? String(row[liderCol] || '').trim() : '';
+
+                        if (rawName.toLowerCase().includes('total') || rawCO.toLowerCase().includes('total')) continue;
+
+                        const vVal = parseNumeric(row[ventaCol]);
+                        const matched = findPDVMatch(rawName, rawCO, rawLider);
+                        if (!matched) continue;
+                        const pVal = getStoreBudget(matched.id);
+                        const key = 'pdv_' + matched.id;
+
+                        if (!pdvAgg.has(key)) {
+                            pdvAgg.set(key, { matched, name: matched.name, ppto: pVal, venta: 0 });
+                        }
+                        const item = pdvAgg.get(key);
                         item.venta += vVal;
                     }
 
@@ -2353,9 +2734,19 @@ const SEED_PDVS = [
                 const found = previewDataCache.find(p => p.type === 'zone' && p.id === z.id);
                 if (found) return { zoneId: z.id, compliance: found.compliance };
 
-                // Si no viene la zona directa, calcular el promedio a partir de sus PDVs
+                // Si no viene la zona directa, calcular el promedio ponderado por presupuesto a partir de sus PDVs
                 const pdvsOfZone = previewDataCache.filter(p => p.type === 'pdv' && p.zoneId === z.id);
                 if (pdvsOfZone.length > 0) {
+                    let zPpto = 0;
+                    let zVenta = 0;
+                    pdvsOfZone.forEach(p => {
+                        const b = getStoreBudget(p.id);
+                        zPpto += b;
+                        zVenta += (p.compliance * b) / 100;
+                    });
+                    if (zPpto > 0) {
+                        return { zoneId: z.id, compliance: Math.round((zVenta / zPpto) * 10) / 10 };
+                    }
                     const sum = pdvsOfZone.reduce((acc, curr) => acc + curr.compliance, 0);
                     return { zoneId: z.id, compliance: Math.round((sum / pdvsOfZone.length) * 10) / 10 };
                 }
