@@ -248,6 +248,11 @@
                 <p class="text-gray-600 dark:text-gray-400 text-[11px] sm:text-xs font-semibold uppercase tracking-wider mt-0.5" id="campaign-subtitle">
                     Cumple al 100% con tu Escuadrón de combate y llévate el botín
                 </p>
+                <div class="mt-1 flex items-center justify-center gap-1.5 flex-wrap">
+                    <span class="inline-flex items-center gap-1 text-[10px] sm:text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/30">
+                        <span>🎯 Presupuestos Oficiales del 23 al 30 de Septiembre</span>
+                    </span>
+                </div>
             </div>
 
             <!-- 3. Controls & Action Buttons (Right) - Reorganizados para encajar 100% en la pantalla -->
@@ -313,12 +318,15 @@
 
         <!-- LEVEL NAVIGATION BAR: SELECCIÓN DE NIVEL (NACIONAL vs ZONA ESPECÍFICA / PDVs) -->
         <div class="mb-4 glass-card p-3 rounded-xl flex flex-wrap items-center justify-between gap-3 border-l-4 border-amber-500">
-            <div class="flex items-center gap-2">
+            <div class="flex items-center gap-2 flex-wrap">
                 <span class="text-xs font-black uppercase tracking-wider text-gray-500 dark:text-gray-400">Escuadrón a Visualizar:</span>
                 <select id="zone-scope-selector" onchange="changeZoneScope(this.value)" class="bg-white dark:bg-navy-900 border border-gray-300 dark:border-navy-700 text-gray-900 dark:text-white text-xs sm:text-sm font-bold py-1.5 px-3 rounded-lg shadow-xs outline-none focus:ring-2 focus:ring-amber-500">
                     <option value="all">🌐 Vista Nacional (11 Zonas / 181 PDVs)</option>
                     <!-- Zone options injected by JS -->
                 </select>
+                <span class="inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-1 rounded-lg bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30">
+                    <span>📅 Ppto Oficial: 23 al 30 de Septiembre</span>
+                </span>
             </div>
 
             <!-- Breadcrumb / Back button when in Zone view -->
@@ -507,7 +515,7 @@
             <div class="flex flex-wrap justify-between items-center gap-4">
                 <div>
                     <h2 class="text-xl font-black uppercase text-gray-900 dark:text-white" id="table-heading">📊 Reporte Operacional</h2>
-                    <p class="text-gray-500 text-xs" id="table-subheading">Ranking y porcentajes de ejecución</p>
+                    <p class="text-gray-500 text-xs" id="table-subheading">Ranking y porcentajes de ejecución sobre la meta de presupuesto del 23 al 30 de Septiembre</p>
                 </div>
                 <button id="export-csv-btn" onclick="exportToCSV()" class="bg-gray-800 hover:bg-gray-900 dark:bg-navy-800 dark:hover:bg-navy-700 text-white px-4 py-2 rounded-lg font-bold text-xs items-center gap-2 shadow-sm transition hidden">
                     <span>📥</span> Exportar CSV
@@ -561,11 +569,11 @@
 
                 <div class="bg-gray-50 dark:bg-navy-950 p-4 border-2 border-dashed border-gray-300 dark:border-navy-700 rounded-xl text-center">
                     <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-bold text-[11px] mb-2 border border-emerald-500/30">
-                        <span>🎯 Presupuesto Oficial Precargado (23 al 30 Sept - 173 PDVs)</span>
+                        <span>🎯 Presupuestos Oficiales Precargados: 23 al 30 de Septiembre (173 PDVs)</span>
                     </div>
                     <p class="mb-2 font-bold text-gray-700 dark:text-gray-300">Opción A: Subir Archivo Excel o CSV</p>
                     <input type="file" id="file-upload" accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel" class="block w-full text-xs text-gray-500 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-amber-500 file:text-white hover:file:bg-amber-600 cursor-pointer">
-                    <p class="text-[10px] text-emerald-600 dark:text-emerald-400 mt-2 font-medium">⚡ Sube directamente "Consursos y base actualizada" (solo ventas). La app calcula de inmediato el % de cumplimiento contra la meta oficial de la campaña.</p>
+                    <p class="text-[10px] text-emerald-600 dark:text-emerald-400 mt-2 font-medium">⚡ Sube directamente "Consursos y base actualizada" (solo ventas). La app calcula de inmediato el % de cumplimiento contra las metas del 23 al 30 de Septiembre.</p>
                 </div>
 
                 <div>
