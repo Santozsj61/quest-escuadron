@@ -691,7 +691,7 @@
             { id: 11, name: 'ZONA NARIÑO', leader: 'Jose Raquel Salazar', emoji: '🗻' },
         ];
 
-        // Base oficial de 182 Puntos de Venta (Base gnral)
+        // Base oficial de 181 Puntos de Venta (Base general - Q105 excluida por apertura reciente)
 const SEED_PDVS = [
             { id: 1, co: '6', zoneId: 7, name: 'FQ006 - Florida - Valle del Cauca', leader: 'Anyela Gonzalez Castrillon' },
             { id: 2, co: '8', zoneId: 5, name: 'FQ008 - Cucuta - CC Unicentro', leader: 'Fabian Sanchez' },
@@ -827,7 +827,6 @@ const SEED_PDVS = [
             { id: 132, co: '94', zoneId: 9, name: 'Q094 - Medellin - Cc Aventura', leader: 'Julian Andres Marin' },
             { id: 133, co: '97', zoneId: 6, name: 'Q097 - Cartago - Centro', leader: 'Andres Felipe Osorio' },
             { id: 134, co: '102', zoneId: 5, name: 'Q102 - Valledupar - Cc Guatapuri', leader: 'Fabian Sanchez' },
-            { id: 135, co: '105', zoneId: 6, name: 'Q105 - Pereira - Centro', leader: 'Andres Felipe Osorio' },
             { id: 136, co: '106', zoneId: 1, name: 'Q106 - Soledad - Cc Nuestro Atlantico', leader: 'Carlos Andres Correa Baron' },
             { id: 137, co: '107', zoneId: 1, name: 'Q107 - Monteria - Cc Nuestro Monteria', leader: 'Carlos Andres Correa Baron' },
             { id: 138, co: '109', zoneId: 1, name: 'Q109 - Cartagena - Cc La Castellana', leader: 'Carlos Andres Correa Baron' },
@@ -1003,7 +1002,6 @@ const SEED_PDVS = [
             132: 60889139,
             133: 63485926,
             134: 159896511,
-            135: 137846913,
             136: 142696361,
             137: 162238040,
             138: 189375644,
@@ -2188,7 +2186,7 @@ const SEED_PDVS = [
         function findPDVMatch(rawText, rawCo, rawLeader) {
             if (!rawText && !rawCo) return null;
             const textClean = String(rawText || '').trim().toLowerCase();
-            if (textClean.includes('qst') || textClean.includes('cosmocentro') || (textClean.includes('134') && textClean.includes('cali'))) return null; // Excluir QST y PDVs cerrados (ej. Q134 Cosmocentro)
+            if (textClean.includes('qst') || textClean.includes('cosmocentro') || (textClean.includes('134') && textClean.includes('cali')) || textClean.includes('q105') || (textClean.includes('105') && textClean.includes('pereira'))) return null; // Excluir QST, PDVs cerrados (ej. Q134 Cosmocentro) y aperturas recientes (Q105)
 
             const coClean = String(rawCo || '').replace(/[^0-9]/g, '');
             const leaderClean = String(rawLeader || '').trim().toLowerCase();
