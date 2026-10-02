@@ -270,10 +270,16 @@
                         <span class="text-xs font-semibold" id="theme-text">Modo Hangar</span>
                     </button>
 
-                    <!-- Cloud Sync Status Badge -->
-                    <div id="cloud-sync-badge" class="flex items-center gap-1.5 text-[11px] font-bold px-2 py-1 rounded-lg border bg-gray-200 dark:bg-navy-800 text-gray-500 border-gray-300 dark:border-navy-700" title="Estado de sincronización en la nube">
+                    <!-- Cloud Sync Status Badge (Solo visible para Maestro Santiago) -->
+                    <div id="cloud-sync-badge" class="hidden items-center gap-1.5 text-[11px] font-bold px-2 py-1 rounded-lg border bg-gray-200 dark:bg-navy-800 text-gray-500 border-gray-300 dark:border-navy-700" title="Estado de sincronización en la nube">
                         <span id="cloud-dot" class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
                         <span id="cloud-status-text">Conectando...</span>
+                    </div>
+
+                    <!-- Online Users Counter (Solo visible para Maestro Santiago) -->
+                    <div id="online-users-badge" class="hidden items-center gap-1.5 text-[11px] font-bold px-2.5 py-1 rounded-lg border bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/30 shadow-xs" title="Usuarios con la plataforma abierta ahora mismo">
+                        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
+                        <span id="online-users-count" class="font-black">1 en línea</span>
                     </div>
                 </div>
 
@@ -1365,6 +1371,8 @@ const SEED_PDVS = [
             checkPptoNotice();
         }
 
+        let currentCloudStatusTheme = 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/30';
+
         function updateCloudStatusUI(status) {
             const badge = document.getElementById('cloud-sync-badge');
             const dot = document.getElementById('cloud-dot');
@@ -1374,13 +1382,20 @@ const SEED_PDVS = [
             if (status === 'connected') {
                 dot.className = 'w-2 h-2 rounded-full bg-emerald-500 animate-pulse';
                 txt.textContent = 'En la Nube';
-                badge.className = 'hidden sm:flex items-center gap-1.5 text-[11px] font-bold px-2.5 py-1.5 rounded-lg border bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/30';
+                currentCloudStatusTheme = 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/30';
                 badge.title = 'Conectado a la base de datos central de Quest. Sincronizado para todo el país.';
             } else if (status === 'offline') {
                 dot.className = 'w-2 h-2 rounded-full bg-orange-500';
                 txt.textContent = 'Modo Local';
-                badge.className = 'hidden sm:flex items-center gap-1.5 text-[11px] font-bold px-2.5 py-1.5 rounded-lg border bg-orange-500/10 text-orange-600 dark:text-orange-400 border-orange-500/30';
+                currentCloudStatusTheme = 'bg-orange-500/10 text-orange-600 dark:text-orange-400 border-orange-500/30';
                 badge.title = 'Sin conexión a Supabase. Operando con memoria local del navegador.';
+            }
+
+            // Solo mostrar si es Maestro Santiago
+            if (currentAuthRole === 'MAESTRO') {
+                badge.className = 'flex items-center gap-1.5 text-[11px] font-bold px-2.5 py-1.5 rounded-lg border ' + currentCloudStatusTheme;
+            } else {
+                badge.className = 'hidden';
             }
         }
 
@@ -1430,17 +1445,71 @@ const SEED_PDVS = [
             }
         }
 
+        let onlineUsersCount = 1;
+        let presenceChannel = null;
+
         function setupRealtimeSync() {
             if (!supabaseClient) return;
             try {
+                // 1. Escuchar cambios de cortes en la nube
                 supabaseClient.channel('quest_cortes_live')
                     .on('postgres_changes', { event: '*', schema: 'public', table: 'quest_cortes' }, (payload) => {
                         console.log('⚡ Actualización en tiempo real recibida:', payload);
                         loadCutsFromCloud();
                     })
                     .subscribe();
+
+                // 2. Canal de Presence para contabilizar usuarios activos con la página abierta
+                const sessionId = 'session_' + Math.random().toString(36).substring(2, 9) + '_' + Date.now();
+                presenceChannel = supabaseClient.channel('quest_active_users_presence', {
+                    config: {
+                        presence: {
+                            key: sessionId
+                        }
+                    }
+                });
+
+                presenceChannel
+                    .on('presence', { event: 'sync' }, () => {
+                        const state = presenceChannel.presenceState();
+                        let totalCount = 0;
+                        for (const key in state) {
+                            totalCount += state[key].length;
+                        }
+                        onlineUsersCount = Math.max(1, totalCount);
+                        updateOnlineUsersUI();
+                    })
+                    .on('presence', { event: 'join' }, () => {
+                        const state = presenceChannel.presenceState();
+                        let totalCount = 0;
+                        for (const k in state) totalCount += state[k].length;
+                        onlineUsersCount = Math.max(1, totalCount);
+                        updateOnlineUsersUI();
+                    })
+                    .on('presence', { event: 'leave' }, () => {
+                        const state = presenceChannel.presenceState();
+                        let totalCount = 0;
+                        for (const k in state) totalCount += state[k].length;
+                        onlineUsersCount = Math.max(1, totalCount);
+                        updateOnlineUsersUI();
+                    })
+                    .subscribe(async (status) => {
+                        if (status === 'SUBSCRIBED') {
+                            await presenceChannel.track({
+                                role: currentAuthRole,
+                                online_at: new Date().toISOString()
+                            });
+                        }
+                    });
             } catch(e) {
-                console.warn('No se pudo activar Realtime:', e);
+                console.warn('No se pudo activar Realtime o Presence:', e);
+            }
+        }
+
+        function updateOnlineUsersUI() {
+            const countEl = document.getElementById('online-users-count');
+            if (countEl) {
+                countEl.textContent = onlineUsersCount === 1 ? '1 en línea' : `${onlineUsersCount} en línea`;
             }
         }
 
@@ -2136,8 +2205,30 @@ const SEED_PDVS = [
             const authContainer = document.getElementById('auth-controls');
             const newCutBtn = document.getElementById('new-cut-btn');
             const exportCsvBtn = document.getElementById('export-csv-btn');
+            const cloudBadge = document.getElementById('cloud-sync-badge');
+            const onlineBadge = document.getElementById('online-users-badge');
 
             if (!authContainer) return;
+
+            // Control de visibilidad para Maestro: Nube y Usuarios en línea
+            if (isMaster) {
+                if (cloudBadge) {
+                    cloudBadge.className = 'flex items-center gap-1.5 text-[11px] font-bold px-2.5 py-1.5 rounded-lg border ' + currentCloudStatusTheme;
+                }
+                if (onlineBadge) {
+                    onlineBadge.classList.remove('hidden');
+                    onlineBadge.classList.add('flex');
+                    updateOnlineUsersUI();
+                }
+            } else {
+                if (cloudBadge) {
+                    cloudBadge.className = 'hidden';
+                }
+                if (onlineBadge) {
+                    onlineBadge.classList.add('hidden');
+                    onlineBadge.classList.remove('flex');
+                }
+            }
 
             if (isMaster) {
                 authContainer.innerHTML = `
@@ -2208,6 +2299,7 @@ const SEED_PDVS = [
                 localStorage.setItem('quest_auth_role', 'MAESTRO');
                 closeLoginModal();
                 updateAuthUI();
+                if (presenceChannel) { presenceChannel.track({ role: 'MAESTRO', online_at: new Date().toISOString() }); }
                 showToast('👑 Bienvenido Maestro Santiago. Permisos de subida y descarga activos.');
             } else {
                 if (errDiv) {
@@ -2221,6 +2313,7 @@ const SEED_PDVS = [
             currentAuthRole = 'VIEWER';
             localStorage.removeItem('quest_auth_role');
             updateAuthUI();
+            if (presenceChannel) { presenceChannel.track({ role: 'VIEWER', online_at: new Date().toISOString() }); }
             showToast('Sesión de Maestro cerrada. Ahora estás en Modo Espectador (Solo Visualización).');
         }
 
