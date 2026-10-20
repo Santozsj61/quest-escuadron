@@ -682,22 +682,22 @@
                 <div class="p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-950 dark:text-emerald-200">
                     <p class="font-bold flex items-start gap-2">
                         <span class="text-base shrink-0">🏆</span>
-                        <span>¡La campaña ha concluido oficialmente! Todos los presupuestos y ventas están al 100% consolidados y completos.</span>
+                        <span>¡La campaña ha concluido oficialmente! Los presupuestos se compararán y conciliarán con el área de BI para la validación definitiva.</span>
                     </p>
                 </div>
 
                 <div class="space-y-2 text-xs text-gray-600 dark:text-gray-400">
                     <div class="flex items-start gap-2">
-                        <span class="text-emerald-500 font-bold shrink-0">✓</span>
-                        <span><strong>Presupuestos Completos:</strong> Consolidado definitivo del 23 de septiembre al 7 de octubre al 100%.</span>
+                        <span class="text-blue-500 font-bold shrink-0">📊</span>
+                        <span><strong>Validación con BI:</strong> Los presupuestos cargados se compararán con el área de BI (Business Intelligence) para corroborar las cifras finales.</span>
                     </div>
                     <div class="flex items-start gap-2">
                         <span class="text-emerald-500 font-bold shrink-0">✓</span>
-                        <span><strong>Ventas Totales Completas:</strong> Incluye la totalidad de las ventas registradas hasta el cierre del concurso.</span>
+                        <span><strong>Ventas Totales Completas:</strong> Incluye la totalidad de las ventas registradas del 23 de septiembre al 7 de octubre al cierre del concurso.</span>
                     </div>
                     <div class="flex items-start gap-2">
                         <span class="text-amber-500 font-bold shrink-0">⭐</span>
-                        <span>El Podio de Honor y la Tabla de Clasificación reflejan las posiciones oficiales y finales del combate.</span>
+                        <span>El Podio de Honor y la Tabla de Clasificación reflejan las posiciones oficiales del combate sujetas a dicha conciliación.</span>
                     </div>
                 </div>
             </div>
@@ -1284,13 +1284,13 @@ const SEED_PDVS = [
         function confirmPptoNoticeModal() {
             const chk = document.getElementById('dont-show-notice-again');
             if (chk && chk.checked) {
-                localStorage.setItem('quest_final_notice_dismissed', 'true');
+                localStorage.setItem('quest_final_bi_notice_dismissed', 'true');
             }
             closePptoNoticeModal();
         }
 
         function checkPptoNotice() {
-            const dismissed = localStorage.getItem('quest_final_notice_dismissed');
+            const dismissed = localStorage.getItem('quest_final_bi_notice_dismissed');
             if (!dismissed) {
                 setTimeout(() => {
                     openPptoNoticeModal();
